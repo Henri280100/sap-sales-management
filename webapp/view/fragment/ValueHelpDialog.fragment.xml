@@ -1,0 +1,23 @@
+<core:FragmentDefinition
+	xmlns:filterbar="sap.ui.comp.filterbar"
+	xmlns="sap.ui.comp.valuehelpdialog"
+	xmlns:core="sap.ui.core"
+>
+	<ValueHelpDialog
+		ok=".onValueHelpDialogOk"
+		cancel=".onValueHelpDialogCancel"
+		afterClose=".onValueHelpDialogAfterClose"
+		supportRanges="true"
+	>
+		<filterBar>
+			<filterbar:FilterBar
+				advancedMode="true"
+				search=".onFilterBarSearch"
+				isRunningInValueHelpDialog="true"
+			>
+				<filterbar:filterGroupItems>
+				</filterbar:filterGroupItems>
+			</filterbar:FilterBar>
+		</filterBar>
+	</ValueHelpDialog>
+</core:FragmentDefinition>

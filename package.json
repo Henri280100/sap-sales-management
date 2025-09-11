@@ -1,0 +1,20 @@
+{
+  "name": "sap.ui.smt",
+  "version": "3.3.1",
+  "private": true,
+  "author": "SAP SE",
+  "scripts": {
+    "start": "ui5 serve --open index.html",
+    "build": "ui5 build"
+  },
+  "devDependencies": {
+    "@ui5/cli": "^4",
+    "ui5-middleware-simpleproxy": "^3.4.3"
+  },
+  "ui5": {
+    "dependencies": [
+      "ui5-middleware-simpleproxy",
+      "ui5-middleware-servestatic"
+    ]
+  }
+}

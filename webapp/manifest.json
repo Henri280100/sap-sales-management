@@ -1,0 +1,117 @@
+{
+  "_version": "1.38.0",
+  "sap.app": {
+    "id": "sap.ui.smt",
+    "type": "application",
+    "applicationVersion": {
+      "version": "1.0.0"
+    },
+    "dataSources": {
+      "GWSAMPLE_BASIC": {
+        "uri": "/sap/opu/odata/IWBEP/GWSAMPLE_BASIC/",
+        "type": "OData",
+        "settings": {
+          "odataVersion": "2.0",
+          "localUri": "localService/metadata.xml"
+        }
+      }
+    }
+  },
+  "sap.ui5": {
+    "rootView": {
+      "viewName": "sap.ui.smt.view.App",
+      "type": "XML",
+      "async": true,
+      "id": "smt"
+    },
+    "dependencies": {
+      "minUI5Version": "1.139.0",
+      "libs": {
+        "sap.f": {},
+        "sap.m": {},
+        "sap.uxap": {},
+        "sap.ui.core": {},
+        "sap.ui.layout": {},
+        "sap.ui.table": {},
+        "sap.ui.comp": {}
+      }
+    },
+    "models": {
+      "salesOrder": {
+        "type": "sap.ui.model.odata.v2.ODataModel",
+        "dataSource": "GWSAMPLE_BASIC",
+        "settings": {
+          "synchronizationMode": "None",
+          "operationMode": "Server",
+          "autoExpandSelect": true
+        }
+      },
+      "product": {
+        "type": "sap.ui.model.odata.v2.ODataModel",
+        "dataSource": "GWSAMPLE_BASIC",
+        "settings": {
+          "synchronizationMode": "None",
+          "operationMode": "Server",
+          "autoExpandSelect": true
+        }
+      },
+      "businessPartner": {
+        "type": "sap.ui.model.odata.v2.ODataModel",
+        "dataSource": "GWSAMPLE_BASIC",
+        "settings": {
+          "synchronizationMode": "None",
+          "operationMode": "Server",
+          "autoExpandSelect": true
+        }
+      },
+      "contact": {
+        "type": "sap.ui.model.odata.v2.ODataModel",
+        "dataSource": "GWSAMPLE_BASIC",
+        "settings": {
+          "synchronizationMode": "None",
+          "operationMode": "Server",
+          "autoExpandSelect": true
+        }
+      }
+    },
+    "config": {
+      "fullWidth": true
+    },
+    "routing": {
+      "config": {
+        "routerClass": "sap.m.routing.Router",
+        "viewType": "XML",
+        "path": "sap.ui.smt.view",
+        "controlId": "idFlexibleColumnLayout",
+        "transition": "slide",
+        "async": true
+      },
+      "routes": [
+        {
+          "pattern": "",
+          "name": "SaleOrderList",
+          "target": "SaleOrderList"
+        },
+        {
+          "pattern": "SalesOrder/{SalesOrderID}",
+          "name": "detail",
+          "target": "detail"
+        }
+      ],
+      "targets": {
+        "SaleOrderList": {
+          "viewName": "SaleOrderList",
+          "viewId": "listView",
+          "viewLevel": 1,
+          "controlAggregation": "beginColumnPages"
+        },
+        "detail": {
+          "viewName": "SaleOrderDetail",
+          "viewId": "detailView",
+          "viewLevel": 2,
+          "controlAggregation": "midColumnPages"
+        }
+      }
+    }
+  }
+}

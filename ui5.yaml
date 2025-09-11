@@ -1,0 +1,27 @@
+specVersion: "4.0"
+metadata:
+  name: sap.ui.smt
+type: application
+framework:
+  name: SAPUI5
+  version: "1.139.0"
+  libraries:
+    - name: sap.ui.core
+    - name: sap.m
+    - name: sap.f
+    - name: sap.uxap
+    - name: themelib_sap_horizon
+    - name: sap.ui.layout
+    - name: sap.ui.table
+    - name: sap.ui.comp
+
+server:
+  customMiddleware:
+    - name: ui5-middleware-simpleproxy
+      afterMiddleware: compression
+      mountPath: /sap/opu/odata/IWBEP/GWSAMPLE_BASIC
+      configuration:
+        baseUri: "https://sapes5.sapdevcenter.com/sap/opu/odata/IWBEP/GWSAMPLE_BASIC"
+        # username: "P2009820510"
+        # password: "Khoa@123"
+        changeOrigin: true
