@@ -92,7 +92,7 @@
       },
       "routes": [
         {
-          "pattern": "",
+          "pattern": ":layout:",
           "name": "SaleOrderList",
           "target": ["SaleOrderList", "detail"]
         },

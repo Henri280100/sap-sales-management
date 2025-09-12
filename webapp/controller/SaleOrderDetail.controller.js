@@ -3,8 +3,9 @@ sap.ui.define(
     "sap/ui/core/mvc/Controller",
     "sap/m/MessageToast",
     "sap/ui/smt/model/formatter",
+    "sap/ui/core/Fragment",
   ],
-  function (Controller, MessageToast, formatter) {
+  function (Controller, MessageToast, formatter, Fragment) {
     "use strict";
 
     return Controller.extend("sap.ui.smt.controller.SaleOrderDetail", {
@@ -84,23 +85,23 @@ sap.ui.define(
         oModel.callFunction(sPath, mParameters);
       },
 
-      onConfirmSO: function () {
+      onConfirmSOButtonPress: function () {
         this._callFunctionImport("SalesOrder_Confirm");
       },
 
-      onGoodsIssue: function () {
+      onGoodsIssueButtonPress: function () {
         this._callFunctionImport("SalesOrder_GoodsIssueCreated");
       },
 
-      onCreateInvoice: function () {
+      onCreateInvoiceButtonPress: function () {
         this._callFunctionImport("SalesOrder_InvoiceCreated");
       },
 
-      onCancel: function () {
+      onCancelButtonPress: function () {
         this._callFunctionImport("SalesOrder_Cancel");
       },
 
-      onBusinessPartnerPress: function (oEvent) {
+      onBusinessPartnerIDLinkPress: function (oEvent) {
         const oContext = oEvent.getSource().getBindingContext("salesOrder");
         const oAddress = oContext.getProperty("ToBusinessPartner/Address");
 
@@ -111,10 +112,44 @@ sap.ui.define(
 
         // Choose map provider from business partner
         const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
-        //  maybe later
-        // const mapUrl = `https://wego.here.com/search/${encodedAddress}`;
 
         window.open(mapUrl, "_blank");
+      },
+
+      handleClose: function () {
+        this.oRouter.navTo("SaleOrderList", { layout: "OneColumn" });
+      },
+
+      // Product detail
+      onColumnListItemPress: function (oEvent) {
+        const oSelectedItem = oEvent.getSource();
+        const oContext = oSelectedItem.getBindingContext("salesOrder");
+
+        if (!this._pProductDialog) {
+          this._pProductDialog = Fragment.load({
+            id: "productDetailDialog",
+            name: "sap.ui.smt.view.fragment.ProductDetail", // Adjust to your actual namespace
+            controller: this,
+          }).then(
+            function (oDialog) {
+              this.getView().addDependent(oDialog);
+              return oDialog;
+            }.bind(this)
+          );
+        }
+
+        this._pProductDialog.then(function (oDialog) {
+          oDialog.setBindingContext(oContext, "salesOrder");
+          oDialog.open();
+        });
+      },
+
+      onCloseButtonPress: function () {
+        if (this._pProductDialog) {
+          this._pProductDialog.then(function (oDialog) {
+            oDialog.close();
+          });
+        }
       },
     });
   }

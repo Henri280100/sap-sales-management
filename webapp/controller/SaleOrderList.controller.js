@@ -14,6 +14,7 @@ sap.ui.define(
     "sap/ui/table/Column",
     "sap/m/Column",
     "sap/m/Text",
+    "sap/m/GroupHeaderListItem",
   ],
   function (
     fioriLibrary,
@@ -29,7 +30,8 @@ sap.ui.define(
     ColumnListItem,
     UIColumn,
     Column,
-    Text
+    Text,
+    groupHeaderListItem
   ) {
     "use strict";
 
@@ -52,6 +54,19 @@ sap.ui.define(
 
         var oTable = this.byId("idSalesOrderSetTable");
         this._billingCounts = Object.create(null);
+
+        oModel.read("/SalesOrderSet", {
+          success: function (oData) {
+            if (Array.isArray(oData.results)) {
+              this._rebuildDeliveryCounts(oData.results);
+            } else {
+              console.warn("SalesOrderSet is not an array.");
+            }
+          }.bind(this),
+          error: function (oError) {
+            console.error("Failed to load SalesOrderSet", oError);
+          },
+        });
 
         var attach = function () {
           var oBinding = oTable.getBinding("items");
@@ -461,11 +476,8 @@ sap.ui.define(
               filters: aProductFilters,
             });
 
-            
             var aCollectedIDs = [];
             var sNextSkipToken = null;
-
-          
 
             try {
               // First page
@@ -663,7 +675,6 @@ sap.ui.define(
         // Reset the reference to the basic search field
         this._oBasicSearchField = null;
 
-
         if (oValueHelpDialog && oValueHelpDialog.getFilterBar) {
           var oFilterBar = oValueHelpDialog.getFilterBar();
           if (oFilterBar) {
@@ -671,12 +682,10 @@ sap.ui.define(
           }
         }
 
-        
         if (oValueHelpDialog) {
           this.getView().removeDependent(oValueHelpDialog);
         }
 
- 
         if (oValueHelpDialog) {
           oValueHelpDialog.destroy();
         }
@@ -813,7 +822,31 @@ sap.ui.define(
         });
       },
 
+      _rebuildDeliveryCounts: function (aSalesOrders) {
+        this._deliveryCounts = {};
 
+        aSalesOrders.forEach(
+          function (oOrder) {
+            var sStatus = oOrder.DeliveryStatus || "Initial";
+            if (!this._deliveryCounts[sStatus]) {
+              this._deliveryCounts[sStatus] = 0;
+            }
+            this._deliveryCounts[sStatus]++;
+          }.bind(this)
+        );
+      },
+
+      createDeliveryGroupHeader: function (oGroup) {
+        var sGroupLabel = oGroup?.key || "Initial";
+
+        var iCount = this._deliveryCounts?.[sGroupLabel] ?? 0;
+
+        return new groupHeaderListItem({
+          title: "Delivery Status: " + sGroupLabel,
+          count: iCount,
+          upperCase: false,
+        });
+      },
     });
   }
 );

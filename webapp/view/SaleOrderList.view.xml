@@ -5,216 +5,209 @@
     xmlns:f="sap.f"
     xmlns:mvc="sap.ui.core.mvc"
 >
-    
-            <f:DynamicPage
-                id="idDynamicPage"
-                toggleHeaderOnTitleClick="false"
-            >
-                <!-- DynamicPage Title -->
-                <f:title>
-                    <f:DynamicPageTitle>
-                        <f:heading>
-                            <Title text="Sales Orders" />
-                        </f:heading>
-                    </f:DynamicPageTitle>
-                </f:title>
-                <!-- DynamicPage Content -->
-                <f:content>
-                    <VBox fitContainer="true">
-                        <Label text="Sale Order Number" />
-                        <MultiInput
-                            id="idSalesOrderIDMultiInput"
-                            placeholder="Search by Sales Order No"
-                            showValueHelp="true"
-                            valueHelpRequest=".onMultiInputValueHelpRequest"
-                            tokenUpdate=".onMultiInputTokenUpdate"
-                            width="17.5rem"
-                        >
-                            <core:Item
-                                key="{salesOrder>SalesOrderID}"
-                                text="{salesOrder>SalesOrderID}"
-                            />
-                        </MultiInput>
-                        <Label text="Customer" />
-                        <MultiInput
-                            id="idCustomerNameMultiInput"
-                            placeholder="Search by Customer Name"
-                            showValueHelp="true"
-                            valueHelpRequest=".onMultiInputValueHelpRequest"
-                            width="17.5rem"
-                            tokenUpdate=".onMultiInputTokenUpdate"
-                        >
-                            <core:Item
-                                key="{salesOrder>CustomerName}"
-                                text="{salesOrder>CustomerName}"
-                            />
-                        </MultiInput>
-                        <Label text="Product" />
-                        <MultiInput
-                            id="idProductIDMultiInput"
-                            placeholder="Search by Product ID"
-                            showValueHelp="true"
-                            valueHelpRequest=".onMultiInputValueHelpRequest"
-                            tokenUpdate=".onMultiInputTokenUpdate"
-                            width="17.5rem"
-                        >
-                            <core:Item
-                                key="{salesOrder>ToLineItems/ProductID}"
-                                text="{salesOrder>ToLineItems/ProductID}"
-                            />
-                        </MultiInput>
-                        <OverflowToolbar class="sapFDynamicPageAlignContent">
-                            <ToolbarSpacer />
-                            <ToolbarSpacer />
-                            <SearchField
-                                search=".onSearchFieldSearch"
-                                width="17.5rem"
-                            />
-                            <OverflowToolbarButton
-                                icon="sap-icon://add"
-                                text="Add"
-                                type="Transparent"
-                                press=".onAddOverflowToolbarButtonPress"
-                            />
-                            <OverflowToolbarButton
-                                icon="sap-icon://sort"
-                                text="Sort"
-                                type="Transparent"
-                                press=".onSortOverflowToolbarButtonPress"
-                            />
-
-                            <OverflowToolbarButton
-                                icon="sap-icon://group-2"
-                                text="Group by Billing"
-                                type="Transparent"
-                                press=".onGroupByBillingOverflowToolbarButtonPress"
-                            />
-                            <OverflowToolbarButton
-                                icon="sap-icon://reset"
-                                text="Clear Grouping"
-                                type="Transparent"
-                                press=".onClearGroupingOverflowToolbarButtonPress"
-                            />
-                        
-                    </OverflowToolbar>
-                    <Table
-                        id="idSalesOrderSetTable"
-                        items="{
-                            path: 'salesOrder>/SalesOrderSet',
-                            parameters: {countMode: 'None'},
-                            sorter: [{
-                                path: 'DeliveryStatus',
-                                descending: false,
-                                group: true
-                            }, {
-                                path: 'SalesOrderID',
-                                descending: false
-                            }]
-                        }"
-                        class="sapFDynamicPageAlignContent"
-                        width="auto"
-                    >
-                        <columns>
-                            <Column width="12em">
-                                <Text text="Sales Order No" />
-                            </Column>
-                            <Column width="20em">
-                                <Text text="Customer Id – Customer Name" />
-                            </Column>
-                            <Column hAlign="End">
-                                <Text text="Gross Amount" />
-                            </Column>
-                            <Column hAlign="End">
-                                <Text text="Net Amount" />
-                            </Column>
-                            <Column hAlign="End">
-                                <Text text="Tax Amount" />
-                            </Column>
-                            <Column>
-                                <Text text="Billing Status" />
-                            </Column>
-                            <Column>
-                                <Text text="Delivery Status" />
-                            </Column>
-                        </columns>
-                        <items>
-                            <ColumnListItem type="Navigation" press=".onColumnListItemPress">
-                                <cells>
-                                    <ObjectIdentifier title="{salesOrder>SalesOrderID}" />
-                                    <ObjectIdentifier title="{salesOrder>CustomerID} – {salesOrder>CustomerName}" />
-                                    <ObjectNumber
-                                        core:require="{
-                                            Currency: 'sap/ui/model/type/Currency'
-                                        }"
-                                        number="{
-                                            parts: [{
-                                                path: 'salesOrder>GrossAmount'
-                                            }, {
-                                                path: 'salesOrder>CurrencyCode'
-                                            }],
-                                            type: 'Currency',
-                                            formatOptions: {
-                                                showMeasure: false
-                                            }
-                                        }"
-                                        unit="{salesOrder>CurrencyCode}"
-                                    />
-                                    <ObjectNumber
-                                        core:require="{
-                                            Currency: 'sap/ui/model/type/Currency'
-                                        }"
-                                        number="{
-                                            parts: [{
-                                                path: 'salesOrder>NetAmount'
-                                            }, {
-                                                path: 'salesOrder>CurrencyCode'
-                                            }],
-                                            type: 'Currency',
-                                            formatOptions: {
-                                                showMeasure: false
-                                            }
-                                        }"
-                                        unit="{salesOrder>CurrencyCode}"
-                                    />
-                                    <ObjectNumber
-                                        core:require="{
-                                            Currency: 'sap/ui/model/type/Currency'
-                                        }"
-                                        number="{
-                                            parts: [{
-                                                path: 'salesOrder>TaxAmount'
-                                            }, {
-                                                path: 'salesOrder>CurrencyCode'
-                                            }],
-                                            type: 'Currency',
-                                            formatOptions: {
-                                                showMeasure: false
-                                            }
-                                        }"
-                                        unit="{salesOrder>CurrencyCode}"
-                                    />
-                                    <Text text="{salesOrder>BillingStatusDescription}" />
-                                    <Text text="{salesOrder>DeliveryStatusDescription}" />
-                                </cells>
-                            </ColumnListItem>
-                        </items>
-                    </Table>
-                </VBox>
-            </f:content>
-            <!-- DynamicPage Footer -->
-            <f:footer>
-                <OverflowToolbar>
-                    <ToolbarSpacer />
-                    <Button
-                        type="Accept"
-                        text="Accept"
+    <f:DynamicPage
+        id="idDynamicPage"
+        toggleHeaderOnTitleClick="false"
+    >
+        <!-- DynamicPage Title -->
+        <f:title>
+            <f:DynamicPageTitle>
+                <f:heading>
+                    <Title text="Sales Orders" />
+                </f:heading>
+            </f:DynamicPageTitle>
+        </f:title>
+        <!-- DynamicPage Content -->
+        <f:content>
+            <VBox fitContainer="true">
+                <Label text="Sale Order Number" />
+                <MultiInput
+                    id="idSalesOrderIDMultiInput"
+                    placeholder="Search by Sales Order No"
+                    showValueHelp="true"
+                    valueHelpRequest=".onMultiInputValueHelpRequest"
+                    tokenUpdate=".onMultiInputTokenUpdate"
+                    width="17.5rem"
+                >
+                    <core:Item
+                        key="{salesOrder>SalesOrderID}"
+                        text="{salesOrder>SalesOrderID}"
                     />
-                    <Button
-                        type="Reject"
-                        text="Reject"
+                </MultiInput>
+                <Label text="Customer" />
+                <MultiInput
+                    id="idCustomerNameMultiInput"
+                    placeholder="Search by Customer Name"
+                    showValueHelp="true"
+                    valueHelpRequest=".onMultiInputValueHelpRequest"
+                    width="17.5rem"
+                    tokenUpdate=".onMultiInputTokenUpdate"
+                >
+                    <core:Item
+                        key="{salesOrder>CustomerName}"
+                        text="{salesOrder>CustomerName}"
+                    />
+                </MultiInput>
+                <Label text="Product" />
+                <MultiInput
+                    id="idProductIDMultiInput"
+                    placeholder="Search by Product ID"
+                    showValueHelp="true"
+                    valueHelpRequest=".onMultiInputValueHelpRequest"
+                    tokenUpdate=".onMultiInputTokenUpdate"
+                    width="17.5rem"
+                >
+                    <core:Item
+                        key="{salesOrder>ToLineItems/ProductID}"
+                        text="{salesOrder>ToLineItems/ProductID}"
+                    />
+                </MultiInput>
+                <OverflowToolbar class="sapFDynamicPageAlignContent">
+                    <ToolbarSpacer />
+                    <ToolbarSpacer />
+                    <SearchField
+                        search=".onSearchFieldSearch"
+                        width="17.5rem"
+                    />
+                    <OverflowToolbarButton
+                        icon="sap-icon://sort"
+                        text="Sort"
+                        type="Transparent"
+                        press=".onSortOverflowToolbarButtonPress"
+                    />
+                    <OverflowToolbarButton
+                        icon="sap-icon://group-2"
+                        text="Group by Billing"
+                        type="Transparent"
+                        press=".onGroupByBillingOverflowToolbarButtonPress"
+                    />
+                    <OverflowToolbarButton
+                        icon="sap-icon://reset"
+                        text="Clear Grouping"
+                        type="Transparent"
+                        press=".onClearGroupingOverflowToolbarButtonPress"
                     />
                 </OverflowToolbar>
-            </f:footer>
-        </f:DynamicPage>
-
+                <Table
+                    id="idSalesOrderSetTable"
+                    items="{
+                        groupHeaderFactory: '.createDeliveryGroupHeader',
+                        path: 'salesOrder>/SalesOrderSet',
+                        parameters: {
+                            countMode: 'None'
+                        },
+                        sorter: {
+                            path: 'DeliveryStatus',
+                            group: true
+                        }
+                    }"
+                    class="sapFDynamicPageAlignContent"
+                    width="auto"
+                    growing="false"
+                >
+                    <columns>
+                        <Column width="12em">
+                            <Text text="Sales Order No" />
+                        </Column>
+                        <Column width="20em">
+                            <Text text="Customer Id – Customer Name" />
+                        </Column>
+                        <Column hAlign="End">
+                            <Text text="Gross Amount" />
+                        </Column>
+                        <Column hAlign="End">
+                            <Text text="Net Amount" />
+                        </Column>
+                        <Column hAlign="End">
+                            <Text text="Tax Amount" />
+                        </Column>
+                        <Column>
+                            <Text text="Billing Status" />
+                        </Column>
+                        <Column>
+                            <Text text="Delivery Status" />
+                        </Column>
+                    </columns>
+                    <items>
+                        <ColumnListItem
+                            type="Navigation"
+                            press=".onColumnListItemPress"
+                        >
+                            <cells>
+                                <ObjectIdentifier title="{salesOrder>SalesOrderID}" />
+                                <ObjectIdentifier title="{salesOrder>CustomerID} – {salesOrder>CustomerName}" />
+                                <ObjectNumber
+                                    core:require="{
+                                        Currency: 'sap/ui/model/type/Currency'
+                                    }"
+                                    number="{
+                                        parts: [{
+                                            path: 'salesOrder>GrossAmount'
+                                        }, {
+                                            path: 'salesOrder>CurrencyCode'
+                                        }],
+                                        type: 'Currency',
+                                        formatOptions: {
+                                            showMeasure: false
+                                        }
+                                    }"
+                                    unit="{salesOrder>CurrencyCode}"
+                                />
+                                <ObjectNumber
+                                    core:require="{
+                                        Currency: 'sap/ui/model/type/Currency'
+                                    }"
+                                    number="{
+                                        parts: [{
+                                            path: 'salesOrder>NetAmount'
+                                        }, {
+                                            path: 'salesOrder>CurrencyCode'
+                                        }],
+                                        type: 'Currency',
+                                        formatOptions: {
+                                            showMeasure: false
+                                        }
+                                    }"
+                                    unit="{salesOrder>CurrencyCode}"
+                                />
+                                <ObjectNumber
+                                    core:require="{
+                                        Currency: 'sap/ui/model/type/Currency'
+                                    }"
+                                    number="{
+                                        parts: [{
+                                            path: 'salesOrder>TaxAmount'
+                                        }, {
+                                            path: 'salesOrder>CurrencyCode'
+                                        }],
+                                        type: 'Currency',
+                                        formatOptions: {
+                                            showMeasure: false
+                                        }
+                                    }"
+                                    unit="{salesOrder>CurrencyCode}"
+                                />
+                                <Text text="{salesOrder>BillingStatusDescription}" />
+                                <Text text="{salesOrder>DeliveryStatusDescription}" />
+                            </cells>
+                        </ColumnListItem>
+                    </items>
+                </Table>
+            </VBox>
+        </f:content>
+        <!-- DynamicPage Footer -->
+        <f:footer>
+            <OverflowToolbar>
+                <ToolbarSpacer />
+                <Button
+                    type="Accept"
+                    text="Accept"
+                />
+                <Button
+                    type="Reject"
+                    text="Reject"
+                />
+            </OverflowToolbar>
+        </f:footer>
+    </f:DynamicPage>
 </mvc:View>

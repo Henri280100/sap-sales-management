@@ -2,11 +2,10 @@
     controllerName="sap.ui.smt.controller.SaleOrderDetail"
     xmlns="sap.uxap"
     xmlns:m="sap.m"
-    xmlns:f="sap.f"
-    xmlns:form="sap.ui.layout.form"
-    xmlns:mvc="sap.ui.core.mvc">
+    xmlns:mvc="sap.ui.core.mvc"
+>
     <ObjectPageLayout
-        id="ObjectPageLayout"
+        id="idObjectPageLayout"
         showTitleInHeaderContent="true"
         alwaysShowContentHeader="false"
         preserveHeaderStateOnScroll="false"
@@ -14,92 +13,141 @@
         isChildPage="true"
         upperCaseAnchorBar="false"
         showFooter="true"
-        >
+    >
         <headerTitle>
             <ObjectPageDynamicHeaderTitle>
                 <expandedHeading>
-                    <m:ObjectHeader
-                        title="Sales Order {salesOrder>SalesOrderID}">
+                    <m:ObjectHeader title="Sales Order {salesOrder>SalesOrderID}">
                         <m:attributes>
-                            <m:ObjectAttribute title="Sales Order Number" text="{salesOrder>SalesOrderID}" />
-                            <m:ObjectAttribute title="Customer"
-                                text="{= ${salesOrder>CustomerID} + ' - ' + ${salesOrder>CustomerName} }" />
-                            <m:ObjectAttribute title="Net Amount" text="{salesOrder>NetAmount} {CurrencyCode}" />
-                            <m:ObjectAttribute title="Tax Amount" text="{salesOrder>TaxAmount} {CurrencyCode}" />
-                            <m:ObjectAttribute title="Billing Status"
-                                text="{salesOrder>BillingStatusDescription}" />
-                            <m:ObjectAttribute title="Delivery Status"
-                                text="{salesOrder>DeliveryStatusDescription}" />
-                            <m:ObjectAttribute title="Note" text="{salesOrder>Note}" />
+                            <m:ObjectAttribute
+                                title="Sales Order Number"
+                                text="{salesOrder>SalesOrderID}"
+                            />
+                            <m:ObjectAttribute
+                                title="Customer"
+                                text="{= ${salesOrder>CustomerID} + ' - ' + ${salesOrder>CustomerName} }"
+                            />
+                            <m:ObjectAttribute
+                                title="Net Amount"
+                                text="{salesOrder>NetAmount} {CurrencyCode}"
+                            />
+                            <m:ObjectAttribute
+                                title="Tax Amount"
+                                text="{salesOrder>TaxAmount} {CurrencyCode}"
+                            />
+                            <m:ObjectAttribute
+                                title="Billing Status"
+                                text="{salesOrder>BillingStatusDescription}"
+                            />
+                            <m:ObjectAttribute
+                                title="Delivery Status"
+                                text="{salesOrder>DeliveryStatusDescription}"
+                            />
+                            <m:ObjectAttribute
+                                title="Note"
+                                text="{salesOrder>Note}"
+                            />
                         </m:attributes>
                     </m:ObjectHeader>
                 </expandedHeading>
+                <navigationActions>
+                    <m:OverflowToolbarButton
+                        type="Transparent"
+                        icon="sap-icon://decline"
+                        press=".handleClose"
+                        tooltip="Close column"
+                        visible="{= ${/actionButtonsInfo/midColumn/closeColumn} !== null }"
+                    />
+                </navigationActions>
             </ObjectPageDynamicHeaderTitle>
         </headerTitle>
         <sections>
-            <ObjectPageSection titleUppercase="false" title="Business Partner Detail">
+            <ObjectPageSection
+                titleUppercase="false"
+                title="Business Partner Detail"
+            >
                 <subSections>
                     <ObjectPageSubSection>
                         <blocks>
                             <m:VBox class="sapUiSmallMargin">
                                 <!-- Business Partner ID -->
                                 <m:HBox>
-                                    <m:Label text="Business Partner ID:" width="12rem" />                                    
-                                    <m:Link 
-                                            text="{salesOrder>ToBusinessPartner/BusinessPartnerID}" 
-                                            press=".onBusinessPartnerPress" />
-                                   
+                                    <m:Label
+                                        text="Business Partner ID:"
+                                        width="12rem"
+                                    />
+                                    <m:Link
+                                        text="{salesOrder>ToBusinessPartner/BusinessPartnerID}"
+                                        press=".onBusinessPartnerIDLinkPress"
+                                    />
                                 </m:HBox>
- 
                                 <!-- Company Name -->
                                 <m:HBox>
-                                    <m:Label text="Company Name:" width="12rem" />
+                                    <m:Label
+                                        text="Company Name:"
+                                        width="12rem"
+                                    />
                                     <m:Text text="{salesOrder>ToBusinessPartner/CompanyName}" />
                                 </m:HBox>
- 
                                 <!-- Address -->
                                 <m:HBox>
-                                    <m:Label text="Address:" width="12rem" />
-                                    <m:Text text="{parts: [
-                                        'salesOrder>ToBusinessPartner/Address/Street',
-                                        'salesOrder>ToBusinessPartner/Address/Building',
-                                        'salesOrder>ToBusinessPartner/Address/City',
-                                        'salesOrder>ToBusinessPartner/Address/PostalCode',
-                                        'salesOrder>ToBusinessPartner/Address/Country'
-                                    ],
-                                    formatter: '.formatter.formatAddress'}" />
- 
+                                    <m:Label
+                                        text="Address:"
+                                        width="12rem"
+                                    />
+                                    <m:Text text="{
+                                        parts: [
+                                            'salesOrder>ToBusinessPartner/Address/Street',
+                                            'salesOrder>ToBusinessPartner/Address/Building',
+                                            'salesOrder>ToBusinessPartner/Address/City',
+                                            'salesOrder>ToBusinessPartner/Address/PostalCode',
+                                            'salesOrder>ToBusinessPartner/Address/Country'
+                                        ],
+                                        formatter: '.formatter.formatAddress'
+                                    }" />
                                 </m:HBox>
- 
                                 <!-- Email Address (clickable link) -->
                                 <m:HBox>
-                                    <m:Label text="Email Address:" width="12rem" />
-                                    <m:Link text="{salesOrder>ToBusinessPartner/EmailAddress}"
-                                        href="mailto:{salesOrder>ToBusinessPartner/EmailAddress}" />
+                                    <m:Label
+                                        text="Email Address:"
+                                        width="12rem"
+                                    />
+                                    <m:Link
+                                        text="{salesOrder>ToBusinessPartner/EmailAddress}"
+                                        href="mailto:{salesOrder>ToBusinessPartner/EmailAddress}"
+                                    />
                                 </m:HBox>
- 
                                 <!-- Phone Number (clickable link) -->
                                 <m:HBox>
-                                    <m:Label text="Phone Number:" width="12rem" />
-                                    <m:Link text="{salesOrder>ToBusinessPartner/PhoneNumber}"
-                                        href="tel:{salesOrder>ToBusinessPartner/PhoneNumber}" />
+                                    <m:Label
+                                        text="Phone Number:"
+                                        width="12rem"
+                                    />
+                                    <m:Link
+                                        text="{salesOrder>ToBusinessPartner/PhoneNumber}"
+                                        href="tel:{salesOrder>ToBusinessPartner/PhoneNumber}"
+                                    />
                                 </m:HBox>
                             </m:VBox>
                         </blocks>
                     </ObjectPageSubSection>
                 </subSections>
             </ObjectPageSection>
-            <ObjectPageSection titleUppercase="false" title="Sale Order Line Items">
+            <ObjectPageSection
+                titleUppercase="false"
+                title="Sale Order Line Items"
+            >
                 <subSections>
                     <ObjectPageSubSection>
                         <blocks>
                             <m:Table
-                                id="LineItemsTable"
+                                id="idToLineItemsTable"
                                 items="{salesOrder>ToLineItems}"
                                 inset="false"
                                 headerText="Sales Order Items"
                                 class="sapUiResponsiveMargin"
-                                width="100%">
+                                width="100%"
+                            >
                                 <m:columns>
                                     <m:Column>
                                         <m:Text text="Position Item" />
@@ -126,32 +174,41 @@
                                         <m:Text text="Currency" />
                                     </m:Column>
                                 </m:columns>
- 
                                 <m:items>
-                                    <m:ColumnListItem type="Navigation" press=".onShowProductDetail">
+                                    <m:ColumnListItem
+                                        type="Navigation"
+                                        press=".onColumnListItemPress"
+                                    >
                                         <m:cells>
                                             <!-- Position Item -->
                                             <m:Text text="{salesOrder>ItemPosition}" />
-                                           
-                                           
                                             <!-- ProductID – ProductName -->
-                                            <m:Text
-                                                text="{= ${salesOrder>ProductID} + ' - ' + ${salesOrder>ToProduct/Name} }" />
+                                            <m:Text text="{= ${salesOrder>ProductID} + ' - ' + ${salesOrder>ToProduct/Name} }" />
                                             <!-- Delivery Date -->
-                                            <m:Text
-                                                text="{path: 'salesOrder>DeliveryDate', type: 'sap.ui.model.type.Date', formatOptions: { style: 'medium' }}" />
- 
+                                            <m:Text text="{
+                                                path: 'salesOrder>DeliveryDate',
+                                                type: 'sap.ui.model.type.Date',
+                                                formatOptions: {
+                                                    style: 'medium'
+                                                }
+                                            }" />
                                             <!-- Quantity – QuantityUnit -->
                                             <m:Text text="{= ${salesOrder>Quantity} + ' ' + ${salesOrder>QuantityUnit} }" />
                                             <!-- Gross Amount -->
-                                            <m:ObjectNumber number="{salesOrder>GrossAmount}"
-                                                unit="{CurrencyCode}" />
+                                            <m:ObjectNumber
+                                                number="{salesOrder>GrossAmount}"
+                                                unit="{CurrencyCode}"
+                                            />
                                             <!-- Net Amount -->
-                                            <m:ObjectNumber number="{salesOrder>NetAmount}"
-                                                unit="{CurrencyCode}" />
+                                            <m:ObjectNumber
+                                                number="{salesOrder>NetAmount}"
+                                                unit="{CurrencyCode}"
+                                            />
                                             <!-- Tax Amount -->
-                                            <m:ObjectNumber number="{salesOrder>TaxAmount}"
-                                                unit="{CurrencyCode}" />
+                                            <m:ObjectNumber
+                                                number="{salesOrder>TaxAmount}"
+                                                unit="{CurrencyCode}"
+                                            />
                                             <!-- Currency -->
                                             <m:Text text="{salesOrder>CurrencyCode}" />
                                         </m:cells>
@@ -165,14 +222,28 @@
         </sections>
         <footer>
             <m:OverflowToolbar>
-                <m:ToolbarSpacer/>
-                <m:Button text="Confirm SO" type="Emphasized" press=".onConfirmSO"
-                visible="{= ${salesOrder>DeliveryStatusDescription} === 'Initial' &amp;&amp; ${salesOrder>LifecycleStatusDescription} === 'New' }"/>
-                <m:Button text="Goods Issue" press=".onGoodsIssue"
-                visible="{= ${salesOrder>DeliveryStatusDescription} === 'Initial' &amp;&amp; ${salesOrder>LifecycleStatusDescription} === 'In Progress' }"/>
-                <m:Button text="Create Invoice" press=".onCreateInvoice"
-                 visible="{= ${salesOrder>DeliveryStatusDescription} === 'Delivered' &amp;&amp; ${salesOrder>LifecycleStatusDescription} === 'In Progress' }"/>
-                <m:Button text="Cancel" type="Reject" press=".onCancel"/>
+                <m:ToolbarSpacer />
+                <m:Button
+                    text="Confirm SO"
+                    type="Emphasized"
+                    press=".onConfirmSOButtonPress"
+                    visible="{= ${salesOrder>DeliveryStatusDescription} === 'Initial' &amp;&amp; ${salesOrder>LifecycleStatusDescription} === 'New' }"
+                />
+                <m:Button
+                    text="Goods Issue"
+                    press=".onGoodsIssueButtonPress"
+                    visible="{= ${salesOrder>DeliveryStatusDescription} === 'Initial' &amp;&amp; ${salesOrder>LifecycleStatusDescription} === 'In Progress' }"
+                />
+                <m:Button
+                    text="Create Invoice"
+                    press=".onCreateInvoiceButtonPress"
+                    visible="{= ${salesOrder>DeliveryStatusDescription} === 'Delivered' &amp;&amp; ${salesOrder>LifecycleStatusDescription} === 'In Progress' }"
+                />
+                <m:Button
+                    text="Cancel"
+                    type="Reject"
+                    press=".onCancelButtonPress"
+                />
             </m:OverflowToolbar>
         </footer>
     </ObjectPageLayout>

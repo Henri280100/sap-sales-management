@@ -1,0 +1,84 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+>
+    <Dialog
+        id="idProductDetailDialog"
+        title="Product Details"
+        draggable="true"
+        resizable="true"
+    >
+        <content>
+            <Table
+                id="idProductDetailsTable"
+                inset="false"
+                class="sapUiSmallMargin"
+                fixedLayout="true"
+                showSeparators="All"
+            >
+                <columns>
+                    <Column>
+                        <header>
+                            <Label text="Field" />
+                        </header>
+                    </Column>
+                    <Column>
+                        <header>
+                            <Label text="Value" />
+                        </header>
+                    </Column>
+                </columns>
+                <items>
+                    <ColumnListItem>
+                        <cells>
+                            <Text text="Product ID" />
+                            <Text text="{salesOrder>ProductID}" />
+                        </cells>
+                    </ColumnListItem>
+                    <ColumnListItem>
+                        <cells>
+                            <Text text="Product Name" />
+                            <Text text="{salesOrder>ToProduct/Name}" />
+                        </cells>
+                    </ColumnListItem>
+                    <ColumnListItem>
+                        <cells>
+                            <Text text="Delivery Date" />
+                            <Text text="{salesOrder>DeliveryDate}" />
+                        </cells>
+                    </ColumnListItem>
+                    <ColumnListItem>
+                        <cells>
+                            <Text text="Quantity" />
+                            <Text text="{= ${salesOrder>Quantity} + ' ' + ${salesOrder>QuantityUnit} }" />
+                        </cells>
+                    </ColumnListItem>
+                    <ColumnListItem>
+                        <cells>
+                            <Text text="Gross Amount" />
+                            <Text text="{= ${salesOrder>GrossAmount} + ' ' + ${salesOrder>CurrencyCode} }" />
+                        </cells>
+                    </ColumnListItem>
+                    <ColumnListItem>
+                        <cells>
+                            <Text text="Net Amount" />
+                            <Text text="{= ${salesOrder>NetAmount} + ' ' + ${salesOrder>CurrencyCode} }" />
+                        </cells>
+                    </ColumnListItem>
+                    <ColumnListItem>
+                        <cells>
+                            <Text text="Tax Amount" />
+                            <Text text="{= ${salesOrder>TaxAmount} + ' ' + ${salesOrder>CurrencyCode} }" />
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
+        </content>
+        <beginButton>
+            <Button
+                text="Close"
+                press=".onCloseButtonPress"
+            />
+        </beginButton>
+    </Dialog>
+</core:FragmentDefinition>
