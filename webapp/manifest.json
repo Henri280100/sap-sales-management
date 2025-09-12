@@ -43,7 +43,8 @@
         "settings": {
           "synchronizationMode": "None",
           "operationMode": "Server",
-          "autoExpandSelect": true
+          "autoExpandSelect": true,
+          "useBatch": false
         }
       },
       "product": {
@@ -52,7 +53,8 @@
         "settings": {
           "synchronizationMode": "None",
           "operationMode": "Server",
-          "autoExpandSelect": true
+          "autoExpandSelect": true,
+          "useBatch": false
         }
       },
       "businessPartner": {
@@ -61,7 +63,8 @@
         "settings": {
           "synchronizationMode": "None",
           "operationMode": "Server",
-          "autoExpandSelect": true
+          "autoExpandSelect": true,
+          "useBatch": false
         }
       },
       "contact": {
@@ -70,7 +73,8 @@
         "settings": {
           "synchronizationMode": "None",
           "operationMode": "Server",
-          "autoExpandSelect": true
+          "autoExpandSelect": true,
+          "useBatch": false
         }
       }
     },
@@ -90,12 +94,12 @@
         {
           "pattern": "",
           "name": "SaleOrderList",
-          "target": "SaleOrderList"
+          "target": ["SaleOrderList", "detail"]
         },
         {
-          "pattern": "SalesOrder/{SalesOrderID}",
+          "pattern": "detail/SalesOrderSet/{SalesOrderID}/{layout}",
           "name": "detail",
-          "target": "detail"
+          "target": ["detail"]
         }
       ],
       "targets": {

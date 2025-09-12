@@ -1,91 +1,121 @@
-sap.ui.define(["sap/ui/core/mvc/Controller"], function (Controller) {
-  "use strict";
+sap.ui.define(
+  [
+    "sap/ui/core/mvc/Controller",
+    "sap/m/MessageToast",
+    "sap/ui/smt/model/formatter",
+  ],
+  function (Controller, MessageToast, formatter) {
+    "use strict";
 
-  return Controller.extend("sap.ui.smt.controller.SaleOrderDetail", {
-    onInit: function () {
-      
-      this.oRouter = this.getOwnerComponent().getRouter();
-      this.oSalesModel = this.getOwnerComponent().getModel("salesOrder");
-      this._salesOrderId = null;
+    return Controller.extend("sap.ui.smt.controller.SaleOrderDetail", {
+      formatter: formatter,
+      onInit: function () {
+        var oOwnerComponent = this.getOwnerComponent();
 
-      // Cache FCL (from the root view). If this view is not the App view, reach up via owner component.
-      this._oFCL =
-        this.byId("idFlexibleColumnLayout") ||
-        this.getOwnerComponent().getRootControl().byId("idFlexibleColumnLayout");
+        this.oRouter = oOwnerComponent.getRouter();
+        this.oModel = oOwnerComponent.getModel("salesOrder"); // named model
 
-      // Attach per-route handlers
-      this.oRouter
-        .getRoute("SaleOrderList")
-        .attachPatternMatched(this._onListMatched, this);
-      this.oRouter
-        .getRoute("detail")
-        .attachPatternMatched(this._onDetailMatched, this);
-    },
+        // Attach same handler like the sample (for both routes)
+        this.oRouter
+          .getRoute("SaleOrderList")
+          .attachPatternMatched(this._onSalesOrderMatched, this);
+        this.oRouter
+          .getRoute("detail")
+          .attachPatternMatched(this._onSalesOrderMatched, this);
+      },
 
-    _onListMatched: function () {
-      // Show only the begin (list) column
-      this._setLayout("sap.f.LayoutType.OneColumn");
+      _onSalesOrderMatched: function (oEvent) {
+        var oArg = oEvent.getParameter("arguments");
+        var sPath = this.oModel.createKey("/SalesOrderSet", {
+          SalesOrderID: oArg.SalesOrderID,
+        });
+        console.log("Binding path:", sPath);
 
-      // Ensure this view is NOT bound to a specific entity when on the list route
-      var oView = this.getView();
-      if (oView.getElementBinding("salesOrder")) {
-        oView.unbindElement("salesOrder"); // <-- pass the model name
-      }
+        this.oModel
+          .metadataLoaded()
+          .then(() => {
+            this.getView().bindElement({
+              path: sPath,
+              model: "salesOrder",
+              parameters: {
+                expand: "ToBusinessPartner,ToLineItems,ToLineItems/ToProduct",
+              },
+            });
+          })
+          .catch((err) => {
+            console.error("Metadata failed to load", err);
+          });
+      },
 
-      this._salesOrderId = null;
-    },
+      _callFunctionImport: function (functionName) {
+        const salesOrderID = this.getView()
+          .getBindingContext("salesOrder")
+          .getProperty("SalesOrderID");
 
-    _onDetailMatched: function (oEvent) {
-      // Show list + detail side-by-side
-      this._setLayout(fLibarary.LayoutType.TwoColumnsMidExpanded);
+        const oModel = this.getView().getModel("salesOrder"); // named model
+        const sPath = "/" + functionName;
 
-      // Bind the detail view to the selected Sales Order
-      var sId = oEvent.getParameter("arguments").SalesOrderID;
-      if (!sId) {
-        return;
-      }
-      this._salesOrderId = sId;
+        const mParameters = {
+          method: "POST",
+          urlParameters: {
+            SalesOrderID: salesOrderID,
+          },
+          success: function (oData) {
+            console.log(functionName + " success:", oData);
+            MessageToast.show(functionName + " executed successfully.");
+          },
+          error: function (oError) {
+            console.error(functionName + " error:", oError);
+            if (oError && oError.responseText) {
+              try {
+                const oErr = JSON.parse(oError.responseText);
+                console.error("Response body:", oErr);
+              } catch (e) {
+                console.error(
+                  "Cannot parse responseText:",
+                  oError.responseText
+                );
+              }
+            }
+            sap.m.MessageBox.error("Failed to execute " + functionName);
+          },
+        };
 
-      var sPath = "/SalesOrderSet('" + sId + "')";
-      this.getView().bindElement({
-        path: sPath,
-        model: "salesOrder",
-        parameters: {
-          expand: "ToLineItems,ToBusinessPartner", // optional but handy
-        },
-        events: {
-          dataRequested: function () {
-            this.getView().setBusy(true);
-          }.bind(this),
-          dataReceived: function () {
-            this.getView().setBusy(false);
-          }.bind(this),
-        },
-      });
-    },
+        oModel.callFunction(sPath, mParameters);
+      },
 
-    _setLayout: function (sLayout) {
-      if (this._oFCL && this._oFCL.getLayout() !== sLayout) {
-        this._oFCL.setLayout(sLayout);
-      }
-    },
+      onConfirmSO: function () {
+        this._callFunctionImport("SalesOrder_Confirm");
+      },
 
-    /* ---------- UI actions ---------- */
+      onGoodsIssue: function () {
+        this._callFunctionImport("SalesOrder_GoodsIssueCreated");
+      },
 
-    onEditToggleButtonPress: function () {
-      var oOPL = this.byId("ObjectPageLayout");
-      if (!oOPL) return;
-      oOPL.setShowFooter(!oOPL.getShowFooter());
-    },
+      onCreateInvoice: function () {
+        this._callFunctionImport("SalesOrder_InvoiceCreated");
+      },
 
-    onExit: function () {
-      if (!this.oRouter) return;
-      this.oRouter
-        .getRoute("SaleOrderList")
-        .detachPatternMatched(this._onListMatched, this);
-      this.oRouter
-        .getRoute("detail")
-        .detachPatternMatched(this._onDetailMatched, this);
-    },
-  });
-});
+      onCancel: function () {
+        this._callFunctionImport("SalesOrder_Cancel");
+      },
+
+      onBusinessPartnerPress: function (oEvent) {
+        const oContext = oEvent.getSource().getBindingContext("salesOrder");
+        const oAddress = oContext.getProperty("ToBusinessPartner/Address");
+
+        const fullAddress = `${oAddress.Street} ${oAddress.Building}, ${oAddress.City}, ${oAddress.PostalCode}, ${oAddress.Country}`;
+
+        // Encode the address for URL
+        const encodedAddress = encodeURIComponent(fullAddress);
+
+        // Choose map provider from business partner
+        const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
+        //  maybe later
+        // const mapUrl = `https://wego.here.com/search/${encodedAddress}`;
+
+        window.open(mapUrl, "_blank");
+      },
+    });
+  }
+);

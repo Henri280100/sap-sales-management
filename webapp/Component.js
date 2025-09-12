@@ -1,11 +1,6 @@
 sap.ui.define(
-  [
-    "sap/ui/core/UIComponent",
-    "sap/f/library",
-    "sap/ui/model/json/JSONModel",
-    "sap/ui/model/odata/v2/ODataModel",
-  ],
-  function (UIComponent, fioriLibrary, ODataModel, JSONModel) {
+  ["sap/ui/core/UIComponent", "sap/f/library", "sap/ui/model/json/JSONModel"],
+  function (UIComponent, fioriLibrary, JSONModel) {
     "use strict";
 
     return UIComponent.extend("sap.ui.smt.Component", {
@@ -19,7 +14,12 @@ sap.ui.define(
         UIComponent.prototype.init.apply(this, arguments);
 
         // FCL layout model
-        this.setModel(new JSONModel({ layout: fioriLibrary.LayoutType.OneColumn }));
+        this.setModel(
+          new JSONModel({ layout: fioriLibrary.LayoutType.OneColumn })
+        );
+
+        var oSO = this.getModel("salesOrder");
+        console.log("salesOrder model:", !!oSO, oSO && oSO.sServiceUrl);
 
         // Router (same as your sample)
         var oRouter = this.getRouter();
@@ -27,15 +27,13 @@ sap.ui.define(
         oRouter.initialize();
       },
       _onBeforeRouteMatched: function (oEvent) {
-        var oModel = this.getModel();
-        var mArgs =
+        var args =
           (oEvent.getParameters() && oEvent.getParameters().arguments) || {};
-        var sLayout = mArgs.layout;
-
-        if (!sLayout) {
-          sLayout = fioriLibrary.LayoutType.OneColumn;
-        }
-        oModel.setProperty("/layout", sLayout);
+        var sLayout =
+          args.layout ||
+          this.getModel().getProperty("/layout") ||
+          fioriLibrary.LayoutType.OneColumn;
+        this.getModel().setProperty("/layout", sLayout);
       },
     });
   }

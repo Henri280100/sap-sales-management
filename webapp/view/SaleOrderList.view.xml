@@ -5,8 +5,7 @@
     xmlns:f="sap.f"
     xmlns:mvc="sap.ui.core.mvc"
 >
-    <f:FlexibleColumnLayout>
-        <f:beginColumnPages>
+    
             <f:DynamicPage
                 id="idDynamicPage"
                 toggleHeaderOnTitleClick="false"
@@ -217,6 +216,5 @@
                 </OverflowToolbar>
             </f:footer>
         </f:DynamicPage>
-    </f:beginColumnPages>
-</f:FlexibleColumnLayout>
+
 </mvc:View>

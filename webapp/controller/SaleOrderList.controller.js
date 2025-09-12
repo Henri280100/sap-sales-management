@@ -16,7 +16,7 @@ sap.ui.define(
     "sap/m/Text",
   ],
   function (
-    library,
+    fioriLibrary,
     Controller,
     Filter,
     FilterOperator,
@@ -82,42 +82,42 @@ sap.ui.define(
 
       // @endregion
       // Internal helper methods
-      _getDefaultTokens: function () {
-        var aTokens = [];
-        var oModel = this.getOwnerComponent().getModel("salesOrder");
+      // _getDefaultTokens: function () {
+      //   var aTokens = [];
+      //   var oModel = this.getOwnerComponent().getModel("salesOrder");
 
-        // Example: preload product PD-103
-        var oContext = oModel.createKey("/ProductSet", {
-          ProductID: "HT-1000",
-        });
-        oModel.read(oContext, {
-          success: function (oData) {
-            aTokens.push(
-              new sap.m.Token({
-                key: oData.ProductID,
-                text: oData.Name + " (" + oData.ProductID + ")",
-              })
-            );
-          },
-        });
+      //   // Example: preload product PD-103
+      //   var oContext = oModel.createKey("/ProductSet", {
+      //     ProductID: "HT-1000",
+      //   });
+      //   oModel.read(oContext, {
+      //     success: function (oData) {
+      //       aTokens.push(
+      //         new sap.m.Token({
+      //           key: oData.ProductID,
+      //           text: oData.Name + " (" + oData.ProductID + ")",
+      //         })
+      //       );
+      //     },
+      //   });
 
-        // Example: preload Sales Order 0500000001
-        var oContext2 = oModel.createKey("/SalesOrderSet", {
-          SalesOrderID: "0500000001",
-        });
-        oModel.read(oContext2, {
-          success: function (oData) {
-            aTokens.push(
-              new sap.m.Token({
-                key: oData.SalesOrderID,
-                text: oData.CustomerName + " (" + oData.SalesOrderID + ")",
-              })
-            );
-          },
-        });
+      //   // Example: preload Sales Order 0500000001
+      //   var oContext2 = oModel.createKey("/SalesOrderSet", {
+      //     SalesOrderID: "0500000001",
+      //   });
+      //   oModel.read(oContext2, {
+      //     success: function (oData) {
+      //       aTokens.push(
+      //         new sap.m.Token({
+      //           key: oData.SalesOrderID,
+      //           text: oData.CustomerName + " (" + oData.SalesOrderID + ")",
+      //         })
+      //       );
+      //     },
+      //   });
 
-        return aTokens;
-      },
+      //   return aTokens;
+      // },
 
       onSearchFieldSearch: function (oEvent) {
         var oTableSearchState = [],
@@ -137,8 +137,6 @@ sap.ui.define(
           .getBinding("items")
           .filter(oTableSearchState, "Application");
       },
-
-      onAddOverflowToolbarButtonPress: function (oEvent) {},
 
       // Sort table
       onSortOverflowToolbarButtonPress: function () {
@@ -454,7 +452,7 @@ sap.ui.define(
               "[_applyAllFilters] salesOrder model missing; skipping product resolution."
             );
           } else {
-            // OR group: (ProductID eq 'P1') or (ProductID eq 'P2') ...
+            // OR group: ProductID ...
             var aProductFilters = aPRKeys.map(function (pid) {
               return new Filter("ProductID", FilterOperator.EQ, pid);
             });
@@ -463,22 +461,11 @@ sap.ui.define(
               filters: aProductFilters,
             });
 
-            // Read all pages (follow __next) and collect SalesOrderID
+            
             var aCollectedIDs = [];
             var sNextSkipToken = null;
 
-            // Helper to execute one page read
-            // var readPage = function (mParams) {
-            //   return new Promise(function (resolve, reject) {
-            //     oModel.read("/SalesOrderLineItemSet", mParams);
-            //     mParams._done = function () {
-            //       resolve();
-            //     };
-            //     mParams._fail = function (e) {
-            //       reject(e);
-            //     };
-            //   });
-            // };
+          
 
             try {
               // First page
@@ -676,7 +663,7 @@ sap.ui.define(
         // Reset the reference to the basic search field
         this._oBasicSearchField = null;
 
-        // If the dialog has a filter bar, clear its basic search field
+
         if (oValueHelpDialog && oValueHelpDialog.getFilterBar) {
           var oFilterBar = oValueHelpDialog.getFilterBar();
           if (oFilterBar) {
@@ -684,13 +671,12 @@ sap.ui.define(
           }
         }
 
-        // Remove the dialog as a dependent of the view, so it does not stay attached
+        
         if (oValueHelpDialog) {
           this.getView().removeDependent(oValueHelpDialog);
         }
 
-        // Destroy the dialog completely to ensure a fresh instance is created
-        // next time it is opened (avoids reusing stale state)
+ 
         if (oValueHelpDialog) {
           oValueHelpDialog.destroy();
         }
@@ -699,7 +685,6 @@ sap.ui.define(
       onMultiInputTokenUpdate: function (oEvent) {
         var that = this;
 
-        // Defer to the next tick so the MultiInput has applied add/remove
         Promise.resolve().then(function () {
           that._applyAllFilters();
         });
@@ -749,12 +734,10 @@ sap.ui.define(
           return;
         }
 
-        // Recompute counts from the rows we currently have (after any filters)
         this._rebuildBillingCounts();
 
         var that = this;
 
-        // GROUP BY BillingStatus (the CODE). Safe for $orderby on ES5.
         var oGroupedSorter = new Sorter(
           "BillingStatus",
           /* descending */ false,
@@ -780,7 +763,7 @@ sap.ui.define(
         // Secondary sorter inside each group
         var oBySalesOrderId = new Sorter("SalesOrderID", false);
 
-        // Apply sorters to the existing binding (no rebind, no protected APIs)
+        // Apply sorters to the existing binding
         oBinding.sort([oGroupedSorter, oBySalesOrderId]);
       },
 
@@ -799,10 +782,6 @@ sap.ui.define(
         this._rebuildBillingCounts();
       },
 
-      /**
-       * Build a { BillingStatusCode -> count } map from the currently loaded
-       * and already filtered contexts. Called on data events and before grouping.
-       */
       _rebuildBillingCounts: function () {
         var oTable = this.byId("idSalesOrderSetTable");
         var oBinding = oTable && oTable.getBinding("items");
@@ -826,20 +805,15 @@ sap.ui.define(
 
       onColumnListItemPress: function (oEvent) {
         var oCtx = oEvent.getSource().getBindingContext("salesOrder");
-        if (!oCtx) {
-          return;
-        }
-        var m = /SalesOrderSet\('([^']+)'\)/.exec(oCtx.getPath());
-        var sId = m && m[1];
-        if (!sId) {
-          return;
-        }
+        var sId = oCtx.getProperty("SalesOrderID"); // <-- raw ID like "0500000001"
 
         this.oRouter.navTo("detail", {
           SalesOrderID: sId,
-          layout: sap.f.LayoutType.TwoColumnsMidExpanded
+          layout: fioriLibrary.LayoutType.TwoColumnsMidExpanded,
         });
       },
+
+
     });
   }
 );

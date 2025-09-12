@@ -45,7 +45,7 @@ sap.ui.define(
         if (!bArrow || !this.currentRouteName) return;
 
         var mNav = Object.assign({}, this.currentParams, { layout: sLayout });
-        this.oRouter.navTo(this.currentRouteName, mNav, /* bReplace */ true);
+        this.oRouter.navTo(this.currentRouteName, mNav,  true);
       },
 
       onExit: function () {
