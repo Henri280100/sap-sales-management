@@ -14,6 +14,7 @@ sap.ui.define(
     "sap/m/Column",
     "sap/m/Text",
     "sap/m/GroupHeaderListItem",
+    "sap/ui/smt/utils/SearchUtils",
   ],
   function (
     fioriLibrary,
@@ -29,7 +30,8 @@ sap.ui.define(
     UIColumn,
     Column,
     Text,
-    groupHeaderListItem
+    groupHeaderListItem,
+    searchUtils
   ) {
     "use strict";
 
@@ -131,25 +133,6 @@ sap.ui.define(
 
       //   return aTokens;
       // },
-
-      onSearchFieldSearch: function (oEvent) {
-        var oTableSearchState = [],
-          sQuery = oEvent.getParameter("query");
-        if (sQuery && sQuery.length > 0) {
-          oTableSearchState = [
-            new Filter({
-              filters: [
-                new Filter("SalesOrderID", FilterOperator.Contains, sQuery),
-                new Filter("CustomerName", FilterOperator.Contains, sQuery),
-              ],
-              and: false,
-            }),
-          ];
-        }
-        this.oSaleOrderTable
-          .getBinding("items")
-          .filter(oTableSearchState, "Application");
-      },
 
       // Sort table
       onSortOverflowToolbarButtonPress: function () {
@@ -782,68 +765,39 @@ sap.ui.define(
         });
       },
 
-      _buildVhdFilters: function () {
-        // Use the last VHD config we stored when opening the dialog
-        var cfg = this._vhdConfig || {};
-        var aFilters = [];
-
-        // Pull the Basic Search text (you already set this._oBasicSearchField)
-        var sQuery =
-          (this._oBasicSearchField &&
-            this._oBasicSearchField.getValue &&
-            this._oBasicSearchField.getValue()) ||
-          "";
-        sQuery = (sQuery || "").trim();
-
-        if (!sQuery) {
-          return aFilters; // no search → no filters
-        }
-
-        // Decide which fields to search per entity set
-        var aFields = [];
-        switch (cfg.entitySet) {
-          case "/SalesOrderSet":
-            aFields = ["SalesOrderID", "CustomerName"];
-            break;
-          case "/BusinessPartnerSet":
-            aFields = ["BusinessPartnerID", "CompanyName"];
-            break;
-          case "/ProductSet":
-            aFields = ["ProductID", "Name", "Category"];
-            break;
-          default:
-            // Fallback: try generic fields
-            aFields = [cfg.key || "SalesID", "Name"];
-        }
-
-        // Build an OR filter: (field1 contains q) OR (field2 contains q) OR ...
-        var aOr = aFields.map(function (sPath) {
-          return new Filter(sPath, FilterOperator.Contains, sQuery);
-        });
-
-        if (aOr.length) {
-          aFilters.push(new Filter({ filters: aOr, and: false }));
-        }
-
-        return aFilters;
-      },
-
       onFilterBarSearch: function () {
-        if (!this._oVHD) {
-          MessageToast.show("Value help dialog not ready.");
-          return;
-        }
+        var sQuery = this._oBasicSearchField.getValue();
+        var cfg = this._vhdConfig || {};
+        var aFields = searchUtils.getSearchFieldsForEntitySet(
+          cfg.entitySet,
+          cfg.key
+        );
+
         this._oVHD.getTableAsync().then(
           function (oTable) {
             var sAgg = oTable.bindRows ? "rows" : "items";
             var oBinding = oTable.getBinding(sAgg);
             if (oBinding) {
-              var aFilters = this._buildVhdFilters();
-              oBinding.filter(aFilters, FilterType.Application);
+              searchUtils.applySearchToBinding(oBinding, aFields, sQuery);
               this._oVHD.update();
             }
           }.bind(this)
         );
+      },
+
+      onSearchFieldSearch: function (oEvent) {
+        var sQuery = oEvent.getParameter("query") || "";
+        var oTable = this.byId("idSalesOrderSetTable");
+        if (!oTable) {
+          return;
+        }
+        var oBinding = oTable.getBinding("items");
+        if (!oBinding) {
+          return;
+        }
+
+        var aFields = searchUtils.getSearchFieldsForEntitySet("/SalesOrderSet");
+        searchUtils.applySearchToBinding(oBinding, aFields, sQuery);
       },
 
       onGroupByBillingOverflowToolbarButtonPress: function (oEvent) {
