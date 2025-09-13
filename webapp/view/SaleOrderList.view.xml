@@ -20,48 +20,52 @@
         <!-- DynamicPage Content -->
         <f:content>
             <VBox fitContainer="true">
-                <Label text="Sale Order Number" />
-                <MultiInput
-                    id="idSalesOrderIDMultiInput"
-                    placeholder="Search by Sales Order No"
-                    showValueHelp="true"
-                    valueHelpRequest=".onMultiInputValueHelpRequest"
-                    tokenUpdate=".onMultiInputTokenUpdate"
-                    width="17.5rem"
-                >
-                    <core:Item
-                        key="{salesOrder>SalesOrderID}"
-                        text="{salesOrder>SalesOrderID}"
-                    />
-                </MultiInput>
-                <Label text="Customer" />
-                <MultiInput
-                    id="idCustomerNameMultiInput"
-                    placeholder="Search by Customer Name"
-                    showValueHelp="true"
-                    valueHelpRequest=".onMultiInputValueHelpRequest"
-                    width="17.5rem"
-                    tokenUpdate=".onMultiInputTokenUpdate"
-                >
-                    <core:Item
-                        key="{salesOrder>CustomerName}"
-                        text="{salesOrder>CustomerName}"
-                    />
-                </MultiInput>
-                <Label text="Product" />
-                <MultiInput
-                    id="idProductIDMultiInput"
-                    placeholder="Search by Product ID"
-                    showValueHelp="true"
-                    valueHelpRequest=".onMultiInputValueHelpRequest"
-                    tokenUpdate=".onMultiInputTokenUpdate"
-                    width="17.5rem"
-                >
-                    <core:Item
-                        key="{salesOrder>ToLineItems/ProductID}"
-                        text="{salesOrder>ToLineItems/ProductID}"
-                    />
-                </MultiInput>
+                <HBox fitContainer="true">
+                    <OverflowToolbar class="sapFDynamicPageAlignContent">
+                        <Label text="Sale Order Number" />
+                        <MultiInput
+                            id="idSalesOrderIDMultiInput"
+                            placeholder="Search by Sales Order No"
+                            showValueHelp="true"
+                            valueHelpRequest=".onMultiInputValueHelpRequest"
+                            tokenUpdate=".onMultiInputTokenUpdate"
+                            width="17.5rem"
+                        >
+                            <core:Item
+                                key="{salesOrder>SalesOrderID}"
+                                text="{salesOrder>SalesOrderID}"
+                            />
+                        </MultiInput>
+                        <Label text="Customer" />
+                        <MultiInput
+                            id="idCustomerNameMultiInput"
+                            placeholder="Search by Customer Name"
+                            showValueHelp="true"
+                            valueHelpRequest=".onMultiInputValueHelpRequest"
+                            width="17.5rem"
+                            tokenUpdate=".onMultiInputTokenUpdate"
+                        >
+                            <core:Item
+                                key="{salesOrder>CustomerName}"
+                                text="{salesOrder>CustomerName}"
+                            />
+                        </MultiInput>
+                        <Label text="Product" />
+                        <MultiInput
+                            id="idProductIDMultiInput"
+                            placeholder="Search by Product ID"
+                            showValueHelp="true"
+                            valueHelpRequest=".onMultiInputValueHelpRequest"
+                            tokenUpdate=".onMultiInputTokenUpdate"
+                            width="17.5rem"
+                        >
+                            <core:Item
+                                key="{salesOrder>ToLineItems/ProductID}"
+                                text="{salesOrder>ToLineItems/ProductID}"
+                            />
+                        </MultiInput>
+                    </OverflowToolbar>
+                </HBox>
                 <OverflowToolbar class="sapFDynamicPageAlignContent">
                     <ToolbarSpacer />
                     <ToolbarSpacer />
@@ -103,7 +107,9 @@
                     }"
                     class="sapFDynamicPageAlignContent"
                     width="auto"
-                    growing="false"
+                    growing="true"
+                    multiSelectMode="SelectAll"
+                    mode="MultiSelect"
                 >
                     <columns>
                         <Column width="12em">

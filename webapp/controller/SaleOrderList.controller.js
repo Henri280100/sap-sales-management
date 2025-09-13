@@ -6,7 +6,6 @@ sap.ui.define(
     "sap/ui/model/FilterOperator",
     "sap/ui/model/FilterType",
     "sap/ui/model/Sorter",
-    "sap/m/Token",
     "sap/m/Label",
     "sap/m/SearchField",
     "sap/m/MessageToast",
@@ -23,7 +22,6 @@ sap.ui.define(
     FilterOperator,
     FilterType,
     Sorter,
-    Token,
     Label,
     SearchField,
     MessageToast,
@@ -37,8 +35,8 @@ sap.ui.define(
 
     return Controller.extend("sap.ui.smt.controller.SaleOrderList", {
       onInit: function () {
-        // Keep counts fresh whenever data for the table changes
-
+        this._oVHD = null;
+        this._vhdConfig = null;
         this._oMultiInput = {
           salesOrderMI: this.byId("idSalesOrderIDMultiInput"),
           customerNameMI: this.byId("idCustomerNameMultiInput"),
@@ -221,174 +219,255 @@ sap.ui.define(
           return;
         }
 
-        this.loadFragment({
-          id: this.getView().getId(),
-          name: "sap.ui.smt.view.fragment.ValueHelpDialog",
-          controller: this,
-        }).then(
-          function (oValueHelpDialog) {
-            var oFilterBar = oValueHelpDialog.getFilterBar(),
-              oColumn;
+        this._vhdConfig = config;
 
-            try {
-              this.getView().addDependent(oValueHelpDialog);
-              const oModel = this.getOwnerComponent().getModel("salesOrder");
-              if (oModel && oModel instanceof sap.ui.model.Model) {
-                oValueHelpDialog.setModel(oModel);
-              } else {
-                MessageToast.show("Model no available or invalid for dialog.");
-                return;
-              }
-            } catch (oError) {
-              MessageToast.show(
-                "Failed to load value help dialog: " + oError.message
-              );
-              console.error("Fragment loading error: ", oError);
-              return;
-            }
-
-            // Ensure dialog is initialized before proceeding
-            if (!oValueHelpDialog) {
-              MessageToast.show("Value help dialog is not initialized.");
-              return;
-            }
-
-            // Customize the dialog for the current type
-            oValueHelpDialog.setTitle(config.title);
-            oValueHelpDialog.setKey(config.key);
-            oValueHelpDialog.setDescriptionKey(config.key);
-
-            // Set range key fields for Define Conditions tab
-            oValueHelpDialog.setRangeKeyFields([
-              {
-                label: config.filterLabel,
-                key: config.key,
-                type: "string",
-                typeInstance: new sap.ui.model.type.String(
-                  {},
-                  { maxLength: 40 }
-                ),
-              },
-            ]);
-
-            // Configure filter bar
-
-            oFilterBar.setFilterBarExpanded(false);
-            oFilterBar.setBasicSearch(this._oBasicSearchField);
-
-            // Trigger filter bar search on basic search
-            this._oBasicSearchField.attachSearch(function () {
-              oFilterBar.search();
-            });
-
-            // Bind the dialog's internal table
-            oValueHelpDialog.getTableAsync().then(
-              function (oTable) {
-                oTable.setModel(oModel);
-
-                if (oTable.bindRows) {
-                  // For sap.ui.table.Table
-                  // bind rows to the data and add columns
-                  oTable.bindAggregation("rows", {
-                    path: config.entitySet,
-                    // parameters: {
-                    //   select: config.columns.map((col) => col.name).join(","),
-                    // },
-                    events: {
-                      dataReceived: function (oEvent) {
-                        const oData = oEvent.getParameter("data");
-                        console.log(
-                          "Data received for " + config.entitySet + ":",
-                          oData
-                        );
-                        if (
-                          !oData ||
-                          !oData.results ||
-                          oData.results.length === 0
-                        ) {
-                          MessageToast.show(
-                            "No data received for " + config.entitySet + "."
-                          );
-                          console.warn(
-                            config.entitySet + " data is empty or undefined:",
-                            oData
-                          );
-                        }
-                        //oTable.getBinding("rows").refresh(true); // Force refresh
-                        oValueHelpDialog.update();
-                      },
-                    },
-                  });
-                  // oTable.removeAllColumns();
-                  config.columns.forEach(function (col) {
-                    oColumn = new UIColumn({
-                      label: new Label({ text: col.label }),
-                      template: new Text({
-                        wrapping: false,
-                        text: "{" + col.name + "}",
-                      }),
-                    });
-                    oColumn.data({
-                      fieldName: col.name,
-                    });
-                    oTable.addColumn(oColumn);
-                  });
+        await new Promise((resolve, reject) => {
+          this.loadFragment({
+            id: this.getView().getId(),
+            name: "sap.ui.smt.view.fragment.ValueHelpDialog",
+            controller: this,
+          })
+            .then(
+              function (oValueHelpDialog) {
+                this._oVHD = oValueHelpDialog;
+                // Keep a reference for cleanup
+                try {
+                  this.getView().addDependent(oValueHelpDialog);
+                } catch (e) {
+                  reject(
+                    new Error("Failed to add dialog as dependent: " + e.message)
+                  );
+                  return;
                 }
-                if (oTable.bindItems) {
-                  // For Mobile the default table is sap.m.Table
-                  oTable.bindAggregation("items", {
-                    path: config.entitySet,
-                    // parameters: {
-                    //   select: config.columns.map((col) => col.name).join(","),
-                    // },
-                    template: new ColumnListItem({
-                      cells: config.columns.map(function (col) {
-                        return new Label({ text: "{" + col.name + "}" });
-                      }),
-                    }),
-                    events: {
-                      dataReceived: function (oEvent) {
-                        const oData = oEvent.getParameter("data");
-                        console.log(
-                          "Data received for " + config.entitySet + ":",
-                          oData
-                        );
-                        if (
-                          !oData ||
-                          !oData.results ||
-                          oData.results.length === 0
-                        ) {
-                          MessageToast.show(
-                            "No data received for " + config.entitySet + "."
-                          );
-                          console.warn(
-                            config.entitySet + " data is empty or undefined:",
-                            oData
-                          );
-                        }
-                        // oTable.getBinding("rows").refresh(true); // Force refresh
-                        oValueHelpDialog.update();
-                      },
-                    },
-                  });
-                  // oTable.removeAllColumns();
-                  config.columns.forEach(function (col) {
-                    oTable.addColumn(
-                      new Column({ header: new Label({ text: col.label }) })
+
+                // when opening
+
+                // on afterClose
+                oValueHelpDialog.attachAfterClose(
+                  function () {
+                    this.getView().removeDependent(oValueHelpDialog);
+                    oValueHelpDialog.destroy();
+                    this._oVHD = null; // <-- clear ref
+                  }.bind(this)
+                );
+
+                // Resolve model once; reject if not present
+                let oModel;
+                try {
+                  oModel = this.getOwnerComponent().getModel("salesOrder");
+                  if (!oModel || !(oModel instanceof sap.ui.model.Model)) {
+                    reject(
+                      new Error("SalesOrder model is not available or invalid.")
                     );
-                  });
-                  // oTable.getBinding("items").refresh(true); // Initial refresh
+                    return;
+                  }
+                  oValueHelpDialog.setModel(oModel);
+                } catch (e) {
+                  reject(
+                    new Error("Failed to get/set model on dialog: " + e.message)
+                  );
+                  return;
                 }
 
-                oValueHelpDialog.update();
-              }.bind(this)
-            );
+                // Safety: must have a dialog
+                if (!oValueHelpDialog) {
+                  reject(new Error("ValueHelpDialog is not initialized."));
+                  return;
+                }
 
-            // Set initial tokens and open the dialog
-            oValueHelpDialog.setTokens(this._currentMI.getTokens());
-            oValueHelpDialog.open();
-          }.bind(this)
-        );
+                // Configure basics
+                try {
+                  oValueHelpDialog.setTitle(config.title);
+                  oValueHelpDialog.setKey(config.key);
+                  oValueHelpDialog.setDescriptionKey(config.key);
+
+                  oValueHelpDialog.setRangeKeyFields([
+                    {
+                      label: config.filterLabel,
+                      key: config.key,
+                      type: "string",
+                      typeInstance: new sap.ui.model.type.String(
+                        {},
+                        { maxLength: 40 }
+                      ),
+                    },
+                  ]);
+
+                  const oFilterBar =
+                    oValueHelpDialog.getFilterBar &&
+                    oValueHelpDialog.getFilterBar();
+                  if (oFilterBar) {
+                    oFilterBar.setFilterBarExpanded(false);
+                    oFilterBar.setBasicSearch(this._oBasicSearchField);
+                    this._oBasicSearchField.attachSearch(function () {
+                      oFilterBar.search();
+                    });
+                  }
+                } catch (e) {
+                  reject(new Error("Failed to configure dialog: " + e.message));
+                  return;
+                }
+
+                // Build the inner table (sap.ui.table.Table or sap.m.Table)
+                oValueHelpDialog
+                  .getTableAsync()
+                  .then(
+                    function (oTable) {
+                      try {
+                        oTable.setModel(oModel);
+
+                        if (oTable.bindRows) {
+                          // -------- Desktop: sap.ui.table.Table --------
+                          oTable.bindAggregation("rows", {
+                            path: config.entitySet,
+                            events: {
+                              dataReceived: function (oEvent) {
+                                console.log(
+                                  "VHD rows data:",
+                                  oEvent.getParameter("data")
+                                );
+                                oValueHelpDialog.update();
+                              },
+                            },
+                          });
+
+                          oTable.removeAllColumns();
+                          config.columns.forEach(function (col) {
+                            const oColumn = new sap.ui.table.Column({
+                              label: new Label({ text: col.label }),
+                              template: new Text({
+                                text: "{" + col.name + "}",
+                              }),
+                            });
+                            oColumn.data({ fieldName: col.name });
+                            oTable.addColumn(oColumn);
+                          });
+                        } else if (oTable.bindItems) {
+                          // -------- Mobile: sap.m.Table --------
+                          oTable.bindAggregation("items", {
+                            path: config.entitySet,
+                            template: new ColumnListItem({
+                              cells: config.columns.map(function (col) {
+                                return new Label({
+                                  text: "{" + col.name + "}",
+                                });
+                              }),
+                            }),
+                            events: {
+                              dataReceived: function (oEvent) {
+                                // console.log("VHD items data:", oEvent.getParameter("data"));
+                                oValueHelpDialog.update();
+                              },
+                            },
+                          });
+
+                          oTable.removeAllColumns();
+                          config.columns.forEach(function (col) {
+                            oTable.addColumn(
+                              new Column({
+                                header: new Label({ text: col.label }),
+                              })
+                            );
+                          });
+                        } else {
+                          reject(
+                            new Error(
+                              "Unsupported table type inside ValueHelpDialog."
+                            )
+                          );
+                          return;
+                        }
+
+                        // Initial tokens from the triggering MultiInput
+                        try {
+                          if (this._currentMI && this._currentMI.getTokens) {
+                            oValueHelpDialog.setTokens(
+                              this._currentMI.getTokens()
+                            );
+                          }
+                        } catch (e) {
+                          // Not fatal; continue
+                        }
+
+                        // Wire OK / Cancel / AfterClose
+                        let sAction = "closed";
+
+                        oValueHelpDialog.attachOk(
+                          function (e) {
+                            try {
+                              sAction = "ok";
+                              const aTokens = e.getParameter("tokens") || [];
+                              if (this._currentMI) {
+                                this._currentMI.removeAllTokens();
+                                aTokens.forEach(
+                                  function (t) {
+                                    this._currentMI.addToken(
+                                      new sap.m.Token({
+                                        key: t.getKey(),
+                                        text: t.getText(),
+                                      })
+                                    );
+                                  }.bind(this)
+                                );
+                              }
+                              // Re-apply your filters after selection
+                              if (this._applyAllFilters) {
+                                this._applyAllFilters();
+                              }
+                            } catch (err) {
+                              reject(
+                                new Error(
+                                  "Failed to apply tokens: " + err.message
+                                )
+                              );
+                              return;
+                            } finally {
+                              oValueHelpDialog.close();
+                            }
+                          }.bind(this)
+                        );
+
+                        oValueHelpDialog.attachCancel(function () {
+                          sAction = "cancel";
+                          oValueHelpDialog.close();
+                        });
+
+                        oValueHelpDialog.attachAfterClose(
+                          function () {
+                            try {
+                              this.getView().removeDependent(oValueHelpDialog);
+                            } catch (e) {
+                              /* ignore */
+                            }
+                            try {
+                              oValueHelpDialog.destroy();
+                            } catch (e) {
+                              /* ignore */
+                            }
+                            resolve({ action: sAction });
+                          }.bind(this)
+                        );
+
+                        // Finally open
+                        oValueHelpDialog.open();
+                      } catch (e) {
+                        reject(
+                          new Error(
+                            "Failed during table setup/open: " + e.message
+                          )
+                        );
+                      }
+                    }.bind(this)
+                  )
+                  .catch(function (err) {
+                    reject(new Error("getTableAsync failed: " + err.message));
+                  });
+              }.bind(this)
+            )
+            .catch(function (err) {
+              reject(new Error("loadFragment failed: " + err.message));
+            });
+        });
       },
 
       _applyAllFilters: async function () {
@@ -682,6 +761,10 @@ sap.ui.define(
           }
         }
 
+        if (this._oBasicSearchField && this._oBasicSearchField.setValue) {
+          this._oBasicSearchField.setValue("");
+        }
+
         if (oValueHelpDialog) {
           this.getView().removeDependent(oValueHelpDialog);
         }
@@ -699,36 +782,68 @@ sap.ui.define(
         });
       },
 
-      onFilterBarSearch: function (oEvent) {
-        const aFilterItems = oEvent.getParameter("selectionSet");
-        const aFilters = aFilterItems.reduce((aResult, oControl) => {
-          if (oControl.getValue) {
-            aResult.push(
-              new Filter({
-                path: oControl.getName(),
-                operator: FilterOperator.Contains,
-                value1: oControl.getValue(),
-              })
-            );
-          }
-          return aResult;
-        }, []);
+      _buildVhdFilters: function () {
+        // Use the last VHD config we stored when opening the dialog
+        var cfg = this._vhdConfig || {};
+        var aFilters = [];
 
-        const oValueHelpDialog = oEvent.getSource().getParent();
-        if (oValueHelpDialog) {
-          const oTable = oValueHelpDialog.getTable();
-          if (oTable) {
-            const oBinding = oTable.getBinding("items");
-            if (oBinding) {
-              oBinding.filter(aFilters, FilterType.Application);
-              oBinding.refresh();
-            } else {
-              MessageToast.show("Table binding not found for filtering");
-            }
-          } else {
-            MessageToast.show("Table not found in value help dialog.");
-          }
+        // Pull the Basic Search text (you already set this._oBasicSearchField)
+        var sQuery =
+          (this._oBasicSearchField &&
+            this._oBasicSearchField.getValue &&
+            this._oBasicSearchField.getValue()) ||
+          "";
+        sQuery = (sQuery || "").trim();
+
+        if (!sQuery) {
+          return aFilters; // no search → no filters
         }
+
+        // Decide which fields to search per entity set
+        var aFields = [];
+        switch (cfg.entitySet) {
+          case "/SalesOrderSet":
+            aFields = ["SalesOrderID", "CustomerName"];
+            break;
+          case "/BusinessPartnerSet":
+            aFields = ["BusinessPartnerID", "CompanyName"];
+            break;
+          case "/ProductSet":
+            aFields = ["ProductID", "Name", "Category"];
+            break;
+          default:
+            // Fallback: try generic fields
+            aFields = [cfg.key || "SalesID", "Name"];
+        }
+
+        // Build an OR filter: (field1 contains q) OR (field2 contains q) OR ...
+        var aOr = aFields.map(function (sPath) {
+          return new Filter(sPath, FilterOperator.Contains, sQuery);
+        });
+
+        if (aOr.length) {
+          aFilters.push(new Filter({ filters: aOr, and: false }));
+        }
+
+        return aFilters;
+      },
+
+      onFilterBarSearch: function () {
+        if (!this._oVHD) {
+          MessageToast.show("Value help dialog not ready.");
+          return;
+        }
+        this._oVHD.getTableAsync().then(
+          function (oTable) {
+            var sAgg = oTable.bindRows ? "rows" : "items";
+            var oBinding = oTable.getBinding(sAgg);
+            if (oBinding) {
+              var aFilters = this._buildVhdFilters();
+              oBinding.filter(aFilters, FilterType.Application);
+              this._oVHD.update();
+            }
+          }.bind(this)
+        );
       },
 
       onGroupByBillingOverflowToolbarButtonPress: function (oEvent) {
@@ -844,7 +959,6 @@ sap.ui.define(
         return new groupHeaderListItem({
           title: "Delivery Status: " + sGroupLabel,
           count: iCount,
-          upperCase: false,
         });
       },
     });
