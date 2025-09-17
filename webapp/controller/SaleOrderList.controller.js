@@ -1,21 +1,13 @@
 sap.ui.define(
   [
     "sap/f/library",
-    "sap/m/library",
     "sap/ui/core/mvc/Controller",
-    "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
-    "sap/ui/model/FilterType",
     "sap/ui/model/Sorter",
     "sap/ui/model/BindingMode",
-    "sap/m/Label",
     "sap/m/SearchField",
     "sap/m/MessageToast",
     "sap/m/MessageBox",
-    "sap/m/ColumnListItem",
-    "sap/ui/table/Column",
-    "sap/m/Column",
-    "sap/m/Text",
     "sap/m/GroupHeaderListItem",
     "sap/ui/smt/utils/SearchUtils",
     "sap/ui/smt/utils/ValueHelpUtils",
@@ -27,21 +19,13 @@ sap.ui.define(
   ],
   function (
     fioriLibrary,
-    MLibrary,
     Controller,
-    Filter,
     FilterOperator,
-    FilterType,
     Sorter,
     BindingMode,
-    Label,
     SearchField,
     MessageToast,
     MessageBox,
-    ColumnListItem,
-    UIColumn,
-    Column,
-    Text,
     GroupHeaderListItem,
     SearchUtils,
     VhdUtils,
@@ -114,7 +98,6 @@ sap.ui.define(
         // --- Attach binding events for counts ---
         const attachBindingEvents = function () {
           this._mainBinding = this.oSaleOrderTable.getBinding("items");
-          // keep counts fresh
           if (this._mainBinding) {
             this._mainBinding.attachChange(this._onBindingChanged, this);
             this._mainBinding.attachDataReceived(this._onBindingChanged, this);
@@ -126,7 +109,6 @@ sap.ui.define(
           this._applyGroupChoice("delivery");
           attachBindingEvents();
         } else {
-          // IMPORTANT: attach to the TABLE, not the binding
           this.oSaleOrderTable.attachEventOnce(
             "updateFinished",
             function () {
@@ -139,67 +121,67 @@ sap.ui.define(
       },
 
       // Sort table
-      onSortOverflowToolbarButtonPress: function () {
-        var oTable = this.oSaleOrderTable;
-        if (!oTable) {
-          return;
-        }
+      // onSortOverflowToolbarButtonPress: function () {
+      //   var oTable = this.oSaleOrderTable;
+      //   if (!oTable) {
+      //     return;
+      //   }
 
-        var oBinding = oTable.getBinding("items");
-        if (!oBinding) {
-          return;
-        }
+      //   var oBinding = oTable.getBinding("items");
+      //   if (!oBinding) {
+      //     return;
+      //   }
 
-        // Toggle direction (store sort state on the controller)
-        this._sortState = this._sortState || {
-          path: "SalesOrderID",
-          desc: false,
-        };
-        this._sortState.desc = !this._sortState.desc;
+      //   // Toggle direction (store sort state on the controller)
+      //   this._sortState = this._sortState || {
+      //     path: "SalesOrderID",
+      //     desc: false,
+      //   };
+      //   this._sortState.desc = !this._sortState.desc;
 
-        // If there's already the same sorter applied, do nothing
-        var aExisting = (oBinding.getSorters && oBinding.getSorters()) || [];
-        if (
-          aExisting.length === 1 &&
-          aExisting[0].sPath === this._sortState.path &&
-          !!aExisting[0].bDescending === !!this._sortState.desc
-        ) {
-          return; // no change → no roundtrip or re-render
-        }
+      //   // If there's already the same sorter applied, do nothing
+      //   var aExisting = (oBinding.getSorters && oBinding.getSorters()) || [];
+      //   if (
+      //     aExisting.length === 1 &&
+      //     aExisting[0].sPath === this._sortState.path &&
+      //     !!aExisting[0].bDescending === !!this._sortState.desc
+      //   ) {
+      //     return; // no change → no roundtrip or re-render
+      //   }
 
-        var oSorter = new Sorter(this._sortState.path, this._sortState.desc);
+      //   var oSorter = new Sorter(this._sortState.path, this._sortState.desc);
 
-        // Perf: suspend to avoid intermediate refreshes while applying sorters
-        if (oBinding.suspend) {
-          oBinding.suspend();
-        }
+      //   // Perf: suspend to avoid intermediate refreshes while applying sorters
+      //   if (oBinding.suspend) {
+      //     oBinding.suspend();
+      //   }
 
-        oTable.setBusy(true);
+      //   oTable.setBusy(true);
 
-        // Apply sort in one shot
-        if (oBinding.sort) {
-          oBinding.sort([oSorter]);
-        }
+      //   // Apply sort in one shot
+      //   if (oBinding.sort) {
+      //     oBinding.sort([oSorter]);
+      //   }
 
-        // Resume + wait for data to finish before un-busying
-        var onDone = function () {
-          oTable.setBusy(false);
-        };
-        if (oBinding.resume) {
-          oBinding.resume();
-        }
+      //   // Resume + wait for data to finish before un-busying
+      //   var onDone = function () {
+      //     oTable.setBusy(false);
+      //   };
+      //   if (oBinding.resume) {
+      //     oBinding.resume();
+      //   }
 
-        // In OData V2 a sort triggers a read → use dataReceived once
-        if (oBinding.attachDataReceived) {
-          oBinding.attachDataReceived(function fnOnce() {
-            oBinding.detachDataReceived(fnOnce);
-            onDone();
-          });
-        } else {
-          // Fallback (non-OData bindings)
-          setTimeout(onDone, 0);
-        }
-      },
+      //   // In OData V2 a sort triggers a read → use dataReceived once
+      //   if (oBinding.attachDataReceived) {
+      //     oBinding.attachDataReceived(function fnOnce() {
+      //       oBinding.detachDataReceived(fnOnce);
+      //       onDone();
+      //     });
+      //   } else {
+      //     // Fallback (non-OData bindings)
+      //     setTimeout(onDone, 0);
+      //   }
+      // },
 
       onMultiInputValueHelpRequest: async function (oEvent) {
         this._currentMI = oEvent.getSource();
@@ -536,20 +518,24 @@ sap.ui.define(
         });
       },
 
+      /** 
+       * Remove this search, don't use for searching large data set.
+       * Use search with value help for large data set instead!.
+       * */ 
       // Table search (top SearchField)
-      onSearchFieldSearch: function (oEvent) {
-        var sQuery = (oEvent.getParameter("query") || "").trim();
-        var oTable = this.byId("idSalesOrderSetTable");
-        if (!oTable) return;
-        var oBinding = oTable.getBinding("items");
-        if (!oBinding) return;
+      // onSearchFieldSearch: function (oEvent) {
+      //   var sQuery = (oEvent.getParameter("query") || "").trim();
+      //   var oTable = this.byId("idSalesOrderSetTable");
+      //   if (!oTable) return;
+      //   var oBinding = oTable.getBinding("items");
+      //   if (!oBinding) return;
 
-        var aFields = SearchUtils.getSearchFieldsForEntitySet(
-          "/SalesOrderSet",
-          null
-        );
-        SearchUtils.applySearchToBinding(oBinding, aFields, sQuery);
-      },
+      //   var aFields = SearchUtils.getSearchFieldsForEntitySet(
+      //     "/SalesOrderSet",
+      //     null
+      //   );
+      //   SearchUtils.applySearchToBinding(oBinding, aFields, sQuery);
+      // },
 
       // ValueHelpDialog FilterBar search
       onFilterBarSearch: function () {
@@ -636,7 +622,7 @@ sap.ui.define(
         this._oGroupDlg.open();
       },
 
-      onOKButtonPress: function () {
+      onGroupOKButtonPress: function () {
         const oRBG = this.byId("idGroupByRBG");
         let sKey = this._sGroupChoice || "delivery";
 
@@ -655,7 +641,7 @@ sap.ui.define(
         this._oGroupDlg.close();
       },
 
-      onCancelButtonPress: function () {
+      onGroupCancelButtonPress: function () {
         this._oGroupDlg && this._oGroupDlg.close();
       },
 

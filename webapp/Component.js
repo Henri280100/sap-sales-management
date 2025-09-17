@@ -18,7 +18,7 @@ sap.ui.define(
           new JSONModel({ layout: fioriLibrary.LayoutType.OneColumn })
         );
 
-        // Router (same as your sample)
+        // Router
         var oRouter = this.getRouter();
         oRouter.attachBeforeRouteMatched(this._onBeforeRouteMatched, this);
         oRouter.initialize();

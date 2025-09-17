@@ -1,26 +1,13 @@
 sap.ui.define(
-  ["sap/ui/core/mvc/Controller", "sap/ui/core/UIComponent"],
-  function (Controller, UIComponent) {
+  ["sap/ui/core/mvc/Controller"],
+  function (Controller) {
     "use strict";
 
     return Controller.extend("sap.ui.smt.controller.App", {
       onInit: function () {
-        // Safest way to resolve the router for this view/controller
-        this.oRouter = UIComponent.getRouterFor(this);
 
-        if (this.oRouter) {
-          this._attachRouterHandlers();
-        } else {
-          // As a fallback, wait until Core is ready, then try again
-          sap.ui.getCore().attachInit(
-            function () {
-              this.oRouter = UIComponent.getRouterFor(this);
-              if (this.oRouter) {
-                this._attachRouterHandlers();
-              }
-            }.bind(this)
-          );
-        }
+        this.oRouter = this.getOwnerComponent().getRouter();
+        this._attachRouterHandlers();
       },
 
       _attachRouterHandlers: function () {

@@ -69,10 +69,10 @@
                 <OverflowToolbar class="sapFDynamicPageAlignContent">
 
                     <ToolbarSpacer />
-                    <SearchField
+                    <!-- <SearchField
                         search=".onSearchFieldSearch"
                         width="17.5rem"
-                    />
+                    /> -->
                     <!-- CRUD -->
                     <OverflowToolbarButton
                         icon="sap-icon://add"
@@ -104,13 +104,13 @@
                             <OverflowToolbarLayoutData priority="High" />
                         </layoutData>
                     </OverflowToolbarButton>
-                    <!--  -->
-                    <OverflowToolbarButton
+                    <!-- END CRUD -->
+                    <!-- <OverflowToolbarButton
                         icon="sap-icon://sort"
                         text="Sort"
                         type="Transparent"
                         press=".onSortOverflowToolbarButtonPress"
-                    />
+                    /> -->
                     <OverflowToolbarButton
                         icon="sap-icon://group-2"
                         text="Groups"

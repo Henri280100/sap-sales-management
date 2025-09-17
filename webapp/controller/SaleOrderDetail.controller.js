@@ -25,30 +25,25 @@ sap.ui.define(
           .attachPatternMatched(this._onSalesOrderMatched, this);
       },
 
-      _onSalesOrderMatched: async function (oEvent) {
+      _onSalesOrderMatched: function (oEvent) {
         var oArg = oEvent.getParameter("arguments");
         var sPath = this.oModel.createKey("/SalesOrderSet", {
           SalesOrderID: oArg.SalesOrderID,
         });
-        console.log("Binding path:", sPath);
-
-        await new Promise((resole, reject) => {
-          this.oModel
-            .metadataLoaded()
-            .then(() => {
-              this.getView().bindElement({
-                path: sPath,
-                model: "salesOrder",
-                parameters: {
-                  expand: "ToBusinessPartner,ToLineItems,ToLineItems/ToProduct",
-                },
-              });
-            })
-            .catch((err) => {
-              reject("Error when loading metadata", err);
-              console.error("Metadata failed to load", err);
+        this.oModel
+          .metadataLoaded()
+          .then(() => {
+            this.getView().bindElement({
+              path: sPath,
+              model: "salesOrder",
+              parameters: {
+                expand: "ToBusinessPartner,ToLineItems,ToLineItems/ToProduct",
+              },
             });
-        });
+          })
+          .catch((err) => {
+            console.error("Metadata failed to load", err);
+          });
       },
 
       _callFunctionImport: function (functionName) {
@@ -69,16 +64,13 @@ sap.ui.define(
             MessageToast.show(functionName + " executed successfully.");
           },
           error: function (oError) {
-            console.error(functionName + " error:", oError);
+            
             if (oError && oError.responseText) {
               try {
                 const oErr = JSON.parse(oError.responseText);
-                console.error("Response body:", oErr);
+               
               } catch (e) {
-                console.error(
-                  "Cannot parse responseText:",
-                  oError.responseText
-                );
+                
               }
             }
             sap.m.MessageBox.error("Failed to execute " + functionName);
