@@ -1,0 +1,227 @@
+<!-- webapp/view/fragment/SalesOrderDialog.fragment.xml -->
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:f="sap.ui.layout.form"
+>
+    <Dialog
+        id="idSalesOrderDialog"
+        title="Sales Order"
+        class="sapUiContentPadding"
+        contentWidth="32rem"
+        draggable="true"
+        resizable="true"
+    >
+        <content>
+            <f:SimpleForm
+                editable="true"
+                layout="ResponsiveGridLayout"
+                columnsL="2"
+                columnsM="1"
+                labelSpanL="4"
+                labelSpanM="4"
+                class="sapUiResponsiveContentPadding"
+            >
+                <!-- ========== Customer ========== -->
+                <Title
+                    text="Customer"
+                    level="H5"
+                />
+                <Label
+                    text="Customer ID"
+                    required="true"
+                />
+                <Input
+                    value="{soForm>/CustomerID}"
+                    maxLength="10"
+                    placeholder="0100000000"
+                />
+                <Label
+                    text="Customer Name"
+                    required="true"
+                />
+                <Input
+                    value="{soForm>/CustomerName}"
+                    placeholder="Demo Customer"
+                />
+                <!-- ========== Amounts ========== -->
+                <Title
+                    text="Amounts"
+                    level="H5"
+                />
+                <Label
+                    text="Currency"
+                    required="true"
+                />
+                <ComboBox
+                    value="{soForm>/CurrencyCode}"
+                    placeholder="EUR"
+                    width="100%"
+                >
+                    <items>
+                        <core:Item
+                            key="EUR"
+                            text="EUR"
+                        />
+                        <core:Item
+                            key="USD"
+                            text="USD"
+                        />
+                        <core:Item
+                            key="GBP"
+                            text="GBP"
+                        />
+                        <core:Item
+                            key="VND"
+                            text="VND"
+                        />
+                    </items>
+                </ComboBox>
+                <Label
+                    text="Net Amount"
+                    required="true"
+                />
+                <!-- Net -->
+                <StepInput
+                    value="{
+                        path: 'soForm>/NetAmount',
+                        type: 'sap.ui.model.type.Float',
+                        formatOptions: {
+                            maxFractionDigits: 2
+                        },
+                        constraints: {
+                            minimum: 0
+                        }
+                    }"
+                    change=".onAmountStepInputChange"
+                    width="100%"
+                />
+                <Label
+                    text="Tax Amount"
+                    required="true"
+                />
+                <StepInput
+                    value="{
+                        path: 'soForm>/TaxAmount',
+                        type: 'sap.ui.model.type.Float',
+                        formatOptions: {
+                            maxFractionDigits: 2
+                        },
+                        constraints: {
+                            minimum: 0
+                        }
+                    }"
+                    change=".onAmountStepInputChange"
+                    width="100%"
+                />
+                <Label text="Gross (auto)" />
+                <HBox>
+                    <ObjectNumber
+                        number="{
+                            path: 'soForm>/GrossAmount',
+                            type: 'sap.ui.model.type.Float',
+                            formatOptions: {
+                                minFractionDigits: 2,
+                                maxFactionDigits: 2
+                            }
+                        }"
+                        unit="{soForm>/CurrencyCode}"
+                        state="Success"
+                    />
+                </HBox>
+                <!-- ========== Status ========== -->
+                <Title
+                    text="Statuses"
+                    level="H5"
+                />
+                <Label text="Lifecycle Status" />
+                <Select
+                    selectedKey="{soForm>/LifecycleStatus}"
+                    width="100%"
+                >
+                    <items>
+                        <core:Item
+                            key="N"
+                            text="New (N)"
+                        />
+                        <core:Item
+                            key="P"
+                            text="In Process (P)"
+                        />
+                        <core:Item
+                            key="C"
+                            text="Completed (C)"
+                        />
+                    </items>
+                </Select>
+                <Label text="Billing Status" />
+                <Select
+                    selectedKey="{soForm>/BillingStatus}"
+                    width="100%"
+                >
+                    <items>
+                        <core:Item
+                            key="N"
+                            text="Not Billed (N)"
+                        />
+                        <core:Item
+                            key="P"
+                            text="Partially Billed (P)"
+                        />
+                        <core:Item
+                            key="C"
+                            text="Billed (C)"
+                        />
+                    </items>
+                </Select>
+                <Label text="Delivery Status" />
+                <Select
+                    selectedKey="{soForm>/DeliveryStatus}"
+                    width="100%"
+                >
+                    <items>
+                        <core:Item
+                            key="N"
+                            text="Not Delivered (N)"
+                        />
+                        <core:Item
+                            key="P"
+                            text="Partially Delivered (P)"
+                        />
+                        <core:Item
+                            key="C"
+                            text="Delivered (C)"
+                        />
+                    </items>
+                </Select>
+                <Title
+                    text="Note"
+                    level="H5"
+                />
+                <Label text=" " />
+                <TextArea
+                    value="{soForm>/Note}"
+                    rows="3"
+                    growing="true"
+                    growingMaxLines="5"
+                    width="100%"
+                />
+            </f:SimpleForm>
+        </content>
+        <beginButton>
+            <Button
+                text="OK"
+                type="Emphasized"
+                icon="sap-icon://accept"
+                press=".onOKButtonPress"
+            />
+        </beginButton>
+        <endButton>
+            <Button
+                text="Cancel"
+                icon="sap-icon://decline"
+                press=".onCancelButtonPress"
+            />
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>

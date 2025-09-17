@@ -18,9 +18,6 @@ sap.ui.define(
           new JSONModel({ layout: fioriLibrary.LayoutType.OneColumn })
         );
 
-        var oSO = this.getModel("salesOrder");
-        console.log("salesOrder model:", !!oSO, oSO && oSO.sServiceUrl);
-
         // Router (same as your sample)
         var oRouter = this.getRouter();
         oRouter.attachBeforeRouteMatched(this._onBeforeRouteMatched, this);

@@ -8,6 +8,7 @@
 		cancel=".onValueHelpDialogCancel"
 		afterClose=".onValueHelpDialogAfterClose"
 		supportRanges="true"
+		busyIndicatorDelay="0"
 	>
 		<filterBar>
 			<filterbar:FilterBar

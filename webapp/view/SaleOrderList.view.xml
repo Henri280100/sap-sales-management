@@ -67,12 +67,44 @@
                     </OverflowToolbar>
                 </HBox>
                 <OverflowToolbar class="sapFDynamicPageAlignContent">
-                    <ToolbarSpacer />
+
                     <ToolbarSpacer />
                     <SearchField
                         search=".onSearchFieldSearch"
                         width="17.5rem"
                     />
+                    <!-- CRUD -->
+                    <OverflowToolbarButton
+                        icon="sap-icon://add"
+                        text="Add"
+                        type="Emphasized"
+                        press=".onAddOverflowToolbarButtonPress"
+                    >
+                        <layoutData>
+                            <OverflowToolbarLayoutData priority="High" />
+                        </layoutData>
+                    </OverflowToolbarButton>
+                    <OverflowToolbarButton
+                        icon="sap-icon://edit"
+                        text="Edit"
+                        type="Transparent"
+                        press=".onEditOverflowToolbarButtonPress"
+                    >
+                        <layoutData>
+                            <OverflowToolbarLayoutData priority="High" />
+                        </layoutData>
+                    </OverflowToolbarButton>
+                    <OverflowToolbarButton
+                        icon="sap-icon://delete"
+                        text="Delete"
+                        type="Reject"
+                        press=".onDeleteOverflowToolbarButtonPress"
+                    >
+                        <layoutData>
+                            <OverflowToolbarLayoutData priority="High" />
+                        </layoutData>
+                    </OverflowToolbarButton>
+                    <!--  -->
                     <OverflowToolbarButton
                         icon="sap-icon://sort"
                         text="Sort"
@@ -81,9 +113,9 @@
                     />
                     <OverflowToolbarButton
                         icon="sap-icon://group-2"
-                        text="Group by Billing"
+                        text="Groups"
                         type="Transparent"
-                        press=".onGroupByBillingOverflowToolbarButtonPress"
+                        press=".onGroupsOverflowToolbarButtonPress"
                     />
                     <OverflowToolbarButton
                         icon="sap-icon://reset"
@@ -95,21 +127,18 @@
                 <Table
                     id="idSalesOrderSetTable"
                     items="{
-                        groupHeaderFactory: '.createDeliveryGroupHeader',
+                        groupHeaderFactory: '.createGroupHeader',
                         path: 'salesOrder>/SalesOrderSet',
                         parameters: {
-                            countMode: 'None'
-                        },
-                        sorter: {
-                            path: 'DeliveryStatus',
-                            group: true
+                            countMode: 'None',
+                            operationMode: 'Client'
                         }
                     }"
                     class="sapFDynamicPageAlignContent"
                     width="auto"
                     growing="true"
-                    multiSelectMode="SelectAll"
                     mode="MultiSelect"
+
                 >
                     <columns>
                         <Column width="12em">

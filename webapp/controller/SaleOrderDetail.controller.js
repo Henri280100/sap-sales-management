@@ -25,27 +25,30 @@ sap.ui.define(
           .attachPatternMatched(this._onSalesOrderMatched, this);
       },
 
-      _onSalesOrderMatched: function (oEvent) {
+      _onSalesOrderMatched: async function (oEvent) {
         var oArg = oEvent.getParameter("arguments");
         var sPath = this.oModel.createKey("/SalesOrderSet", {
           SalesOrderID: oArg.SalesOrderID,
         });
         console.log("Binding path:", sPath);
 
-        this.oModel
-          .metadataLoaded()
-          .then(() => {
-            this.getView().bindElement({
-              path: sPath,
-              model: "salesOrder",
-              parameters: {
-                expand: "ToBusinessPartner,ToLineItems,ToLineItems/ToProduct",
-              },
+        await new Promise((resole, reject) => {
+          this.oModel
+            .metadataLoaded()
+            .then(() => {
+              this.getView().bindElement({
+                path: sPath,
+                model: "salesOrder",
+                parameters: {
+                  expand: "ToBusinessPartner,ToLineItems,ToLineItems/ToProduct",
+                },
+              });
+            })
+            .catch((err) => {
+              reject("Error when loading metadata", err);
+              console.error("Metadata failed to load", err);
             });
-          })
-          .catch((err) => {
-            console.error("Metadata failed to load", err);
-          });
+        });
       },
 
       _callFunctionImport: function (functionName) {
